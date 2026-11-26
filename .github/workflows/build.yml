@@ -1,0 +1,86 @@
+# CI for a Robotag game repo. Written by the Robotag Hub (Updates / Builds page > Add CI
+# workflow) from the engine's tools/hub/templates/game-build.yml; edit it freely afterwards.
+#
+# Builds the game inside the engine, like a local checkout: the engine at the root, this repo
+# in games/coin-rush/. Runs where the repository variable CI_RUNNER says (Hub > Builds):
+# unset or "local" = this repo's self-hosted runner on the dev PC (incremental builds),
+# "github" = GitHub's cloud (clean machine, caches; needs Actions billing).
+#
+# Needs the repository secret ENGINE_TOKEN: a fine-grained token with Contents: Read-only on
+# playcebogamesinc-maker/robotag-game-engine (the engine is private, and this workflow runs in another repo).
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A new push to a PR cancels that PR's older, still-running build.
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    # Never for pull requests from forks: their code must not run on the dev PC.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ${{ vars.CI_RUNNER == 'github' && 'windows-latest' || fromJSON('["self-hosted", "Windows"]') }}
+    steps:
+      # clean: false keeps build/, .cache/ and games/ between runs on the dev PC.
+      - name: Check out the engine
+        uses: actions/checkout@v4
+        with:
+          repository: playcebogamesinc-maker/robotag-game-engine
+          ref: main
+          token: ${{ secrets.ENGINE_TOKEN }}
+          clean: false
+
+      - name: Check out the game
+        uses: actions/checkout@v4
+        with:
+          path: games/coin-rush
+          clean: false
+
+      - name: Cache dependencies
+        if: runner.environment == 'github-hosted'
+        uses: actions/cache@v4
+        with:
+          path: .cache/cpm
+          key: cpm-windows-${{ hashFiles('third_party/CMakeLists.txt') }}
+
+      - name: Set up sccache
+        if: runner.environment == 'github-hosted'
+        uses: mozilla-actions/sccache-action@v0.0.9
+
+      - name: Use sccache
+        if: runner.environment == 'github-hosted'
+        shell: bash
+        run: |
+          echo "SCCACHE_GHA_ENABLED=true" >> "$GITHUB_ENV"
+          echo "CMAKE_C_COMPILER_LAUNCHER=sccache" >> "$GITHUB_ENV"
+          echo "CMAKE_CXX_COMPILER_LAUNCHER=sccache" >> "$GITHUB_ENV"
+
+      # The engine's build script builds every game in games/, this one included.
+      - name: Build (Debug)
+        shell: cmd
+        run: build.cmd debug
+
+      # This game's tests (rt_add_test labels them game:<id>). ctest from the CMake that
+      # configured the build (Visual Studio's CMake is not on PATH on a self-hosted machine).
+      - name: Game tests
+        shell: cmd
+        run: |
+          for /f "tokens=1,* delims==" %%a in ('findstr /b "CMAKE_CTEST_COMMAND:" build\windows\CMakeCache.txt') do set "CTEST=%%b"
+          "%CTEST%" --test-dir build\windows -C Debug -L game:coin_rush --output-on-failure --no-tests=ignore
+
+      - name: Game UI
+        shell: cmd
+        run: |
+          if not exist games\coin-rush\content\ui exit /b 0
+          call rt.cmd ui build games\coin-rush --check || exit /b 1
+
+      # Every scene and document of the game must load.
+      - name: Validate content
+        shell: cmd
+        run: rt.cmd validate games\coin-rush
