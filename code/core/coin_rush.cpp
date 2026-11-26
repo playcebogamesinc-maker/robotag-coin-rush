@@ -1,5 +1,7 @@
 #include "core/coin_rush.hpp"
 
+#include <algorithm>
+#include <cstdint>
 #include <cstdio>
 #include <memory>
 #include <optional>
@@ -8,6 +10,7 @@
 #include <vector>
 
 #include "core/coins.hpp"
+#include "core/hunters.hpp"
 #include "core/maze.hpp"
 #include "robots/core/robots_module.hpp"
 #include "runtime/session.hpp"
@@ -34,13 +37,22 @@ void show_coin(scene::Entity& e, const Level& level) {
 }
 
 // One run of Coin Rush: the maze (milestone 2), its coins, the level and the score the HUD
-// shows (milestone 3). Hunters (M4) and the run flow (M5) add to this run later.
+// shows (milestone 3), and the hunters (milestone 4): a touch from one ends the run, the score
+// stays. The run flow (M5) adds the countdown, results and Play Again later.
+//
+// The hunters drive on autopilot (random exits) until engine request #3 lets game code steer
+// them with the brains in hunters.hpp (docs/hunters.md).
 class Run : public runtime::Instance {
 public:
     Run(scene::Scene& scene, std::optional<Maze> maze) : maze_(std::move(maze)) {
         for (const scene::Entity& e : scene.entities) {
             const robots::Robot* robot = find_component<robots::Robot>(e);
-            if (robot && robot->player && player_.empty()) player_ = e.id;
+            if (!robot) continue;
+            if (robot->player && player_.empty()) {
+                player_ = e.id;
+                player_name_ = e.name;
+            }
+            if (!robot->player && hunter_from_name(e.name)) ++hunters_;
         }
         if (maze_) {
             board_.emplace(coin_spots(maze_->graph));
@@ -58,7 +70,11 @@ public:
     }
 
     void tick(scene::Scene& scene, float /*dt*/) override {
-        if (!board_ || player_.empty()) return;
+        if (!board_ || player_.empty() || caught_) return;
+        if (check_catch()) {
+            publish();
+            return;
+        }
         const scene::Entity* player = scene.find(player_);
         if (!player) return;
         const CoinBoard::Pickup pickup = board_->collect(player->transform.position);
@@ -75,6 +91,22 @@ public:
     }
 
 private:
+    // A hunter touched the player since the last tick (robots' contact log).
+    bool check_catch() {
+        int64_t newest = last_contact_;
+        for (const robots::ContactEvent& c : robots::contact_log()) {
+            const auto tick = static_cast<int64_t>(c.tick);
+            if (tick <= last_contact_) continue;
+            newest = std::max(newest, tick);
+            if (!caught_ && is_catch(c.a, c.b, player_name_)) {
+                caught_ = true;
+                caught_by_ = c.a == player_name_ ? c.b : c.a;
+            }
+        }
+        last_contact_ = newest;
+        return caught_;
+    }
+
     void publish() const {
         const int score = board_ ? board_->score() : 0;
         const int level = board_ ? board_->level() : 1;
@@ -83,13 +115,21 @@ private:
         runtime::set_ui_model("run", "{\"score\":" + std::to_string(score) +
                                          ",\"level\":" + std::to_string(level) +
                                          ",\"coins_left\":" + std::to_string(left) +
-                                         ",\"won\":" + (won ? "true" : "false") + "}");
+                                         ",\"won\":" + (won ? "true" : "false") +
+                                         ",\"caught\":" + (caught_ ? "true" : "false") +
+                                         ",\"caught_by\":\"" + caught_by_ + "\"" +
+                                         ",\"hunters\":" + std::to_string(hunters_) + "}");
     }
 
     std::optional<Maze> maze_;  // Hunters (M4) drive on it.
     std::optional<CoinBoard> board_;
     std::vector<std::string> coins_;  // Coin entity per board spot.
     std::string player_;              // The player robot's entity.
+    std::string player_name_;         // ...and its name (contacts name robots).
+    int hunters_ = 0;                 // Hunter robots in the scene (Blinky, Pinky, ...).
+    int64_t last_contact_ = -1;       // Newest contact tick looked at.
+    bool caught_ = false;
+    std::string caught_by_;           // The hunter that caught the player.
 };
 
 std::unique_ptr<runtime::Instance> start_run(scene::Scene& scene,

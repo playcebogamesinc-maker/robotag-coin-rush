@@ -4,6 +4,8 @@
 
 #include "core/coin_rush.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <map>
@@ -15,6 +17,7 @@
 
 #include "all_modules.hpp"
 #include "core/coins.hpp"
+#include "core/hunters.hpp"
 #include "core/maze.hpp"
 #include "rails/core/rail_bake.hpp"
 #include "document/game.hpp"
@@ -270,6 +273,193 @@ void test_drive_every_rail(const coin_rush::Maze& maze, const std::string& start
     CHECK(seconds < 120.0f, "covering the maze took %.0f s", static_cast<double>(seconds));
 }
 
+// Hunter rules: release one by one, scatter then chase, speed per level, each personality's
+// target, names and catches (docs/hunters.md).
+void test_hunter_rules() {
+    using coin_rush::Hunter;
+    using coin_rush::HunterMode;
+    const coin_rush::HunterRules rules;
+    const Hunter all[] = {Hunter::Blinky, Hunter::Pinky, Hunter::Inky, Hunter::Clyde};
+    for (int i = 0; i < 4; ++i) {
+        const int64_t release = rules.first_release_ticks + i * rules.release_gap_ticks;
+        CHECK(coin_rush::hunter_mode(all[i], release - 1) == HunterMode::Home, "hunter %d", i);
+        CHECK(coin_rush::hunter_mode(all[i], release) == HunterMode::Scatter, "hunter %d", i);
+        CHECK(coin_rush::hunter_mode(all[i], release + rules.scatter_ticks) == HunterMode::Chase,
+              "hunter %d", i);
+        CHECK(coin_rush::hunter_from_name(coin_rush::hunter_name(all[i])) == all[i], "name %d", i);
+    }
+    CHECK(coin_rush::hunter_mode(Hunter::Clyde, 100000) == HunterMode::Chase, "late in a run");
+    float last = 0.0f;
+    for (int level = 1; level <= 5; ++level) {
+        const float v = coin_rush::hunter_speed(level, 9.8f);
+        CHECK(v > last, "level %d: %.2f m/s", level, static_cast<double>(v));
+        last = v;
+    }
+    CHECK(coin_rush::hunter_speed(1, 9.8f) < 0.7f * 9.8f, "level 1 isn't well below the player");
+    CHECK(std::abs(coin_rush::hunter_speed(5, 9.8f) - 9.8f) < 0.01f, "level 5 isn't player speed");
+
+    coin_rush::Sighting seen;
+    seen.player = {0.0f, 0.0f, 0.0f};
+    seen.player_forward = {1.0f, 0.0f, 0.0f};  // Heading +x.
+    seen.blinky = {-6.0f, 0.0f, 0.0f};
+    seen.self = {0.0f, 0.0f, 30.0f};
+    seen.home = {27.0f, 0.0f, 27.0f};
+    const auto target = [&](Hunter h, HunterMode m = HunterMode::Chase) {
+        return coin_rush::hunter_target(h, m, seen, rules);
+    };
+    const auto near = [](glm::vec3 a, glm::vec3 b) { return glm::distance(a, b) < 0.01f; };
+    CHECK(near(target(Hunter::Blinky), seen.player), "Blinky aims at the player");
+    CHECK(near(target(Hunter::Pinky), {12.0f, 0.0f, 0.0f}), "Pinky aims 4 tiles ahead");
+    CHECK(near(target(Hunter::Inky), {18.0f, 0.0f, 0.0f}), "Inky: (ahead 2 tiles) x 2 - Blinky");
+    CHECK(near(target(Hunter::Clyde), seen.player), "Clyde far away hunts");
+    CHECK(near(target(Hunter::Pinky, HunterMode::Scatter), seen.home), "scatter goes home");
+    CHECK(near(target(Hunter::Blinky, HunterMode::Home), seen.home), "home stays home");
+    seen.self = {0.0f, 0.0f, 10.0f};
+    CHECK(near(target(Hunter::Clyde), seen.home), "Clyde up close goes home");
+    seen.self = {0.0f, 0.0f, 3.0f};
+    CHECK(near(target(Hunter::Pinky), seen.player), "close range: everyone aims at the player");
+    CHECK(near(target(Hunter::Clyde), seen.player), "close range beats Clyde's shyness");
+
+    CHECK(coin_rush::is_catch("Player", "Inky", "Player"), "player vs hunter");
+    CHECK(coin_rush::is_catch("Clyde", "Player", "Player"), "hunter vs player");
+    CHECK(!coin_rush::is_catch("Blinky", "Pinky", "Player"), "hunter vs hunter");
+    CHECK(!coin_rush::is_catch("Player", "Bot", "Player"), "player vs another robot");
+}
+
+// At every intersection and every way in, a hunter takes a real exit, never back the way it
+// came, and the one that leads closest to its target.
+void test_choose_swipe(const coin_rush::Maze& maze) {
+    robots::RailMap map;
+    map.build(maze.graph);
+    int checked = 0;
+    for (size_t n = 0; n < map.nodes().size(); ++n) {
+        const robots::RailMap::NodeInfo& info = map.nodes()[n];
+        if (!info.intersection()) continue;
+        const int node = static_cast<int>(n);
+        for (int entry = 0; entry < static_cast<int>(info.node->ports.size()); ++entry) {
+            if (info.turns[static_cast<size_t>(entry)].empty()) continue;
+            // Aim at each exit's next intersection in turn: that exit must win.
+            for (int exit : info.turns[static_cast<size_t>(entry)]) {
+                const coin_rush::Stop stop = coin_rush::next_stop(map, node, exit);
+                CHECK(stop.node >= 0 && stop.node != node, "node %d port %d leads nowhere",
+                      node, exit);
+                if (stop.node < 0) continue;
+                const glm::vec3 target = map.nodes()[static_cast<size_t>(stop.node)].node->data.position;
+                const std::optional<robots::Swipe> s =
+                    coin_rush::choose_swipe(map, node, entry, target);
+                CHECK(s && *s != robots::Swipe::Down, "node %d entry %d: no exit", node, entry);
+                if (!s) continue;
+                const int chosen = map.resolve(node, entry, *s);
+                CHECK(chosen != entry, "node %d entry %d: turned back", node, entry);
+                const coin_rush::Stop got = coin_rush::next_stop(map, node, chosen);
+                CHECK(got.node == stop.node, "node %d entry %d: aimed at node %d, went to %d",
+                      node, entry, stop.node, got.node);
+                ++checked;
+            }
+        }
+    }
+    CHECK(checked > 20, "only %d choices checked", checked);
+}
+
+// A hunter driven by its brain (as the engine will once it can steer robots) leaves home after
+// its release, never stops and never turns back; Blinky catches a player waiting on a spawn.
+// (Pinky, Inky and Clyde aim around a player who doesn't move: in a run, Blinky is the one who
+// punishes standing still.)
+void test_hunters_catch(const coin_rush::Maze& maze) {
+    robots::RailMap map;
+    map.build(maze.graph);
+    const coin_rush::HunterRules rules;
+    const int spawn = map.find_node(maze.spawns.front());
+    const robots::Rider player = robots::park_rider(map, spawn, 0, 9.8f);
+    const robots::Pose player_pose = robots::pose(map, player);
+    for (size_t h = 0; h < 4; ++h) {
+        const auto hunter = static_cast<coin_rush::Hunter>(h);
+        const int home = map.find_node(maze.homes[h]);
+        CHECK(home >= 0, "%s has no home", coin_rush::hunter_name(hunter));
+        if (home < 0) continue;
+        const glm::vec3 home_pos = map.nodes()[static_cast<size_t>(home)].node->data.position;
+        robots::Rider rider =
+            robots::park_rider(map, home, 0, coin_rush::hunter_speed(3, 9.8f));
+        int caught_at = -1, stops = 0, reverses = 0;
+        float closest = 1e9f;
+        bool left_home = false;
+        for (int t = 0; t < 90 * 60 && caught_at < 0; ++t) {
+            const coin_rush::HunterMode mode = coin_rush::hunter_mode(hunter, t, rules);
+            if (mode != coin_rush::HunterMode::Home) {
+                const bool deciding =
+                    rider.parked ||
+                    (!rider.plan && rider.brake == robots::Rider::Brake::None &&
+                     !map.tracks()[static_cast<size_t>(rider.track)].junction);
+                if (deciding) {
+                    coin_rush::Sighting seen;
+                    seen.player = player_pose.position;
+                    seen.player_forward = player_pose.forward;
+                    seen.blinky = seen.player;  // Inky: as if Blinky sat on the player.
+                    seen.self = robots::pose(map, rider).position;
+                    seen.home = home_pos;
+                    const glm::vec3 target = coin_rush::hunter_target(hunter, mode, seen, rules);
+                    const coin_rush::Stop at = coin_rush::decision_point(map, rider);
+                    if (std::optional<robots::Swipe> s =
+                            coin_rush::choose_swipe(map, at.node, at.entry, target)) {
+                        robots::swipe(map, rider, *s);
+                    }
+                }
+            }
+            const int dir = rider.dir;
+            const int track = rider.track;
+            const bool was_parked = rider.parked;
+            robots::step(map, rider);
+            left_home |= !rider.parked;
+            if (left_home && rider.parked && !was_parked) ++stops;
+            if (!rider.parked && !was_parked && rider.track == track && rider.dir != dir) {
+                ++reverses;
+            }
+            const float d = glm::distance(robots::pose(map, rider).position, player_pose.position);
+            closest = std::min(closest, d);
+            if (d < 1.0f) caught_at = t;
+        }
+        const char* name = coin_rush::hunter_name(hunter);
+        std::printf("coin_rush_test: %s vs a waiting player: %s after %.1f s (closest %.1f m)\n",
+                    name, caught_at >= 0 ? "caught" : "not caught",
+                    static_cast<double>(caught_at) / 60.0, static_cast<double>(closest));
+        CHECK(left_home, "%s never left home", name);
+        CHECK(stops == 0, "%s stopped %d times", name, stops);
+        CHECK(reverses == 0, "%s turned back %d times", name, reverses);
+        if (hunter == coin_rush::Hunter::Blinky) {
+            CHECK(caught_at >= 0 && caught_at < 30 * 60,
+                  "Blinky didn't catch a player waiting on a spawn in 30 s");
+        }
+    }
+}
+
+// The start scene has the four hunters, the run counts them, and a hunter touching the
+// player ends the run: the score stays and the model says who caught the player.
+void test_run_with_hunters(const scene::Scene& scene, const std::string& content) {
+    runtime::Session session;
+    session.start(scene, content);
+    std::string model;
+    int caught_tick = -1;
+    for (int i = 0; i < 120 * 60 && caught_tick < 0; ++i) {
+        session.tick();
+        model = run_model(session, model);
+        if (model.find("\"caught\":true") != std::string::npos) caught_tick = i;
+    }
+    CHECK(model.find("\"hunters\":4") != std::string::npos, "run model: %s", model.c_str());
+    if (caught_tick >= 0) {
+        std::printf("coin_rush_test: a player standing still was caught after %.1f s (%s)\n",
+                    caught_tick / 60.0, model.c_str());
+        const std::string at_catch = model;
+        for (int i = 0; i < 120; ++i) {
+            session.tick();
+            model = run_model(session, model);
+        }
+        CHECK(model == at_catch, "the run changed after the catch: %s", model.c_str());
+    }
+    // Autopilot is seeded per robot, so this is the same every run (Clyde, about 25 s today).
+    CHECK(caught_tick >= 0, "no hunter caught a player standing still in 120 s");
+    session.stop();
+}
+
 }  // namespace
 
 int main() {
@@ -291,6 +481,8 @@ int main() {
         return EXIT_FAILURE;
     }
     test_run(*scene, project->content);
+    test_run_with_hunters(*scene, project->content);
+    test_hunter_rules();
 
     std::optional<coin_rush::Maze> maze = coin_rush::load_maze(*scene, project->content, error);
     CHECK(maze.has_value(), "%s", error.c_str());
@@ -300,6 +492,8 @@ int main() {
         test_coin_spots(*maze);
         test_levels(*maze);
         test_drive_picks_up_coins(*scene, project->content);
+        test_choose_swipe(*maze);
+        test_hunters_catch(*maze);
         std::string start;
         for (const scene::Entity& e : scene->entities) {
             for (const auto& box : e.module_components) {

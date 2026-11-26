@@ -370,6 +370,94 @@
           "node": "n_3a2e000b"
         }
       }
+    },
+    {
+      "id": "e_4e470000",
+      "name": "Blinky",
+      "components": {
+        "Transform": {
+          "position": [27.0, 0.38, -27.0]
+        },
+        "Robot": {
+          "start_node": "n_3a2e0004",
+          "top_speed": 5.9,
+          "player": false,
+          "autopilot": true,
+          "rig": "robots/olly.rig.json",
+          "anim_graph": "robots/olly.animgraph.json",
+          "body_material": "materials/hunter_blinky.material.json",
+          "accent_material": "materials/home_blinky.material.json",
+          "visor_material": "materials/olly_visor.material.json",
+          "eye_material": "materials/olly_eye.material.json",
+          "wheel_material": "materials/olly_tyre.material.json"
+        }
+      }
+    },
+    {
+      "id": "e_4e470001",
+      "name": "Pinky",
+      "components": {
+        "Transform": {
+          "position": [-27.0, 0.38, -27.0]
+        },
+        "Robot": {
+          "start_node": "n_3a2e0001",
+          "top_speed": 5.9,
+          "player": false,
+          "autopilot": true,
+          "rig": "robots/olly.rig.json",
+          "anim_graph": "robots/olly.animgraph.json",
+          "body_material": "materials/hunter_pinky.material.json",
+          "accent_material": "materials/home_pinky.material.json",
+          "visor_material": "materials/olly_visor.material.json",
+          "eye_material": "materials/olly_eye.material.json",
+          "wheel_material": "materials/olly_tyre.material.json"
+        }
+      }
+    },
+    {
+      "id": "e_4e470002",
+      "name": "Inky",
+      "components": {
+        "Transform": {
+          "position": [27.0, 0.38, 27.0]
+        },
+        "Robot": {
+          "start_node": "n_3a2e0010",
+          "top_speed": 5.9,
+          "player": false,
+          "autopilot": true,
+          "rig": "robots/olly.rig.json",
+          "anim_graph": "robots/olly.animgraph.json",
+          "body_material": "materials/hunter_inky.material.json",
+          "accent_material": "materials/home_inky.material.json",
+          "visor_material": "materials/olly_visor.material.json",
+          "eye_material": "materials/olly_eye.material.json",
+          "wheel_material": "materials/olly_tyre.material.json"
+        }
+      }
+    },
+    {
+      "id": "e_4e470003",
+      "name": "Clyde",
+      "components": {
+        "Transform": {
+          "position": [-27.0, 0.38, 27.0]
+        },
+        "Robot": {
+          "start_node": "n_3a2e000d",
+          "top_speed": 5.9,
+          "player": false,
+          "autopilot": true,
+          "rig": "robots/olly.rig.json",
+          "anim_graph": "robots/olly.animgraph.json",
+          "body_material": "materials/hunter_clyde.material.json",
+          "accent_material": "materials/home_clyde.material.json",
+          "visor_material": "materials/olly_visor.material.json",
+          "eye_material": "materials/olly_eye.material.json",
+          "wheel_material": "materials/olly_tyre.material.json"
+        }
+      }
     }
   ]
 }
