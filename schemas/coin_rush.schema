@@ -1,0 +1,12 @@
+// Coin Rush's own components. Format: the engine's cmake/Schema.cmake.
+// Generated: <build>/generated/schema/coin_rush.gen.hpp
+
+namespace coin_rush
+
+// A named place in the maze, on one of its rail nodes: a hunter's home (one per corner, where
+// it spawns and scatters to) or a player spawn (an intersection near the centre; a run picks
+// one at random). The entity's Transform sits on the node so it shows in the editor.
+component MazeSpot {
+    role: string = "spawn"  @oneof("spawn blinky pinky inky clyde")
+    node: string = ""       // Rail node id ("n_...") in the scene's railway.
+}

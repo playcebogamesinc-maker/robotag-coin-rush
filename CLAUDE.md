@@ -14,7 +14,7 @@ then `build-and-test`, `edit-content`, `rail-layout`, `add-ui-screen`.
   `docs/engine-requests/` and tell Vlad; he builds it in the engine project.
 - **Milestones.** Gameplay first, with simple meshes and no environment art. Polish only after
   the gameplay is confirmed. Status below.
-- The design: `docs/gameplay.md`. Units are metres.
+- The design: `docs/gameplay.md`; the maze: `docs/maze.md`. Units are metres.
 
 ## Layout
 
@@ -22,14 +22,15 @@ then `build-and-test`, `edit-content`, `rail-layout`, `add-ui-screen`.
 - `content/`: scenes, materials, robots, settings, `ui/` (paths in documents are relative to it).
 - `code/`: the game's C++ (`rt_add_game(coin_rush ...)`), built with the engine; tests run in
   ctest (`-L game:coin_rush`).
-- `schemas/coin_rush.schema`: the game's components and documents, when it has some.
+- `schemas/coin_rush.schema`: the game's components (`MazeSpot`: hunter homes, player spawns).
+- `tools/maze_layout.py`: the maze layout as ASCII -> rt commands (`docs/maze.md`).
 
 ## Milestones
 
 | # | Milestone | State |
 |---|---|---|
 | 1 | Project setup: project, test track, player robot, first system (`run` model -> score HUD), test | done |
-| 2 | The maze: the real rail labyrinth (loops, 12 / 18 / 24 m corridors, corner homes, central spawns) | |
+| 2 | The maze: the real rail labyrinth (loops, 12 / 18 / 24 m corridors, corner homes, central spawns) | done: `docs/maze.md`, `tools/maze_layout.py`, `MazeSpot`, `code/core/maze.hpp` (random spawn waits for engine request #3) |
 | 3 | Coins and score: coins along rails, pickup, 5 levels with doubling value and colours | |
 | 4 | Hunters: Blinky, Pinky, Inky, Clyde (needs engine: robot steering, contact rules) | |
 | 5 | Run flow and HUD: start screen, countdown, pause, results, best score, premove arrow (needs engine: game flow, save data) | |
