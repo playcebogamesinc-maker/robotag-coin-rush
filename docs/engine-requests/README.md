@@ -12,3 +12,4 @@ project; this repo never changes the engine.
 | 5 | Game flow: pause, restart, scene switching | needed for milestone 5 |
 | 6 | Save data (best score) | needed for milestone 5 |
 | 7 | Map drawing in the UI (lines / paths, or a top-down view) | needed for milestone 6 |
+| 8 | Hub: a GitHub token per repo (engine, each game), falling back to one shared token | wanted by Vlad (Nov 26 2026), not blocking |
