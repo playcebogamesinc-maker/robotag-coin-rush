@@ -1,0 +1,6 @@
+{
+  "type": "material",
+  "version": 2,
+  "base_color": [0.03, 0.035, 0.05],
+  "roughness": 0.8
+}

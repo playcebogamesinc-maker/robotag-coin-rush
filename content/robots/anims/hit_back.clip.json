@@ -1,0 +1,30 @@
+{
+  "type": "clip",
+  "version": 1,
+  "duration": 0.5,
+  "additive": true,
+  "tracks": {
+    "body": [
+      {"time": 0},
+      {"time": 0.08, "rotate": [-16, 0, 0], "move": [0, -0.03, -0.02]},
+      {"time": 0.25, "rotate": [4, 0, 0]},
+      {"time": 0.5}
+    ],
+    "head": [
+      {"time": 0},
+      {"time": 0.1, "rotate": [-12, 0, 0]},
+      {"time": 0.3, "rotate": [5, 0, 0]},
+      {"time": 0.5}
+    ],
+    "arm_l": [
+      {"time": 0},
+      {"time": 0.1, "rotate": [25, 0, -30]},
+      {"time": 0.5}
+    ],
+    "arm_r": [
+      {"time": 0},
+      {"time": 0.1, "rotate": [25, 0, 30]},
+      {"time": 0.5}
+    ]
+  }
+}
