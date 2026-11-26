@@ -8,7 +8,7 @@
       "name": "Floor",
       "components": {
         "Transform": {
-          "scale": [22.0, 1.0, 22.0]
+          "scale": [32.0, 1.0, 32.0]
         },
         "Mesh": {
           "mesh": "plane",
@@ -34,8 +34,8 @@
       "name": "Main Camera",
       "components": {
         "Transform": {
-          "position": [0.0, 62.0, 30.0],
-          "rotation": [-62.0, 0.0, 0.0]
+          "position": [0.0, 95.0, 22.0],
+          "rotation": [-77.0, 0.0, 0.0]
         },
         "Camera": {}
       }
@@ -56,12 +56,11 @@
       "name": "Player",
       "components": {
         "Transform": {
-          "position": [0.0, 0.38, 18.0],
-          "rotation": [0.0, 90.0, 0.0]
+          "position": [-9.0, 0.38, 9.0]
         },
         "Robot": {
-          "start_node": "n_c014a003",
-          "start_port": 1,
+          "start_node": "n_3a2e000a",
+          "start_port": 2,
           "rig": "robots/olly.rig.json",
           "anim_graph": "robots/olly.animgraph.json",
           "body_material": "materials/olly_white.material.json",
@@ -69,6 +68,306 @@
           "visor_material": "materials/olly_visor.material.json",
           "eye_material": "materials/olly_eye.material.json",
           "wheel_material": "materials/olly_tyre.material.json"
+        }
+      }
+    },
+    {
+      "id": "e_3a2e1000",
+      "name": "Wall 01",
+      "components": {
+        "Transform": {
+          "position": [-18.0, 0.3, -15.0],
+          "scale": [7.0, 0.3, 10.0]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e1001",
+      "name": "Wall 02",
+      "components": {
+        "Transform": {
+          "position": [0.0, 0.3, -15.0],
+          "scale": [7.0, 0.3, 10.0]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e1002",
+      "name": "Wall 03",
+      "components": {
+        "Transform": {
+          "position": [18.0, 0.3, -15.0],
+          "scale": [7.0, 0.3, 10.0]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e1003",
+      "name": "Wall 04",
+      "components": {
+        "Transform": {
+          "position": [-18.0, 0.3, 3.0],
+          "scale": [7.0, 0.3, 4.0]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e1004",
+      "name": "Wall 05",
+      "components": {
+        "Transform": {
+          "position": [0.0, 0.3, 12.0],
+          "scale": [7.0, 0.3, 13.0]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e1005",
+      "name": "Wall 06",
+      "components": {
+        "Transform": {
+          "position": [18.0, 0.3, 3.0],
+          "scale": [7.0, 0.3, 4.0]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e1006",
+      "name": "Wall 07",
+      "components": {
+        "Transform": {
+          "position": [-18.0, 0.3, 18.0],
+          "scale": [7.0, 0.3, 7.0]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e1007",
+      "name": "Wall 08",
+      "components": {
+        "Transform": {
+          "position": [18.0, 0.3, 18.0],
+          "scale": [7.0, 0.3, 7.0]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e1008",
+      "name": "Wall 09",
+      "components": {
+        "Transform": {
+          "position": [0.0, 0.3, -29.5],
+          "scale": [30.0, 0.3, 0.5]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e1009",
+      "name": "Wall 10",
+      "components": {
+        "Transform": {
+          "position": [0.0, 0.3, 29.5],
+          "scale": [30.0, 0.3, 0.5]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e100a",
+      "name": "Wall 11",
+      "components": {
+        "Transform": {
+          "position": [-29.5, 0.3, 0.0],
+          "scale": [0.5, 0.3, 29.0]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e100b",
+      "name": "Wall 12",
+      "components": {
+        "Transform": {
+          "position": [29.5, 0.3, 0.0],
+          "scale": [0.5, 0.3, 29.0]
+        },
+        "Mesh": {
+          "material": "materials/wall.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_3a2e2000",
+      "name": "Home Pinky",
+      "components": {
+        "Transform": {
+          "position": [-27.0, 0.02, -27.0],
+          "scale": [2.0, 0.02, 2.0]
+        },
+        "Mesh": {
+          "material": "materials/home_pinky.material.json"
+        },
+        "MazeSpot": {
+          "role": "pinky",
+          "node": "n_3a2e0001"
+        }
+      }
+    },
+    {
+      "id": "e_3a2e2001",
+      "name": "Home Blinky",
+      "components": {
+        "Transform": {
+          "position": [27.0, 0.02, -27.0],
+          "scale": [2.0, 0.02, 2.0]
+        },
+        "Mesh": {
+          "material": "materials/home_blinky.material.json"
+        },
+        "MazeSpot": {
+          "role": "blinky",
+          "node": "n_3a2e0004"
+        }
+      }
+    },
+    {
+      "id": "e_3a2e2002",
+      "name": "Home Clyde",
+      "components": {
+        "Transform": {
+          "position": [-27.0, 0.02, 27.0],
+          "scale": [2.0, 0.02, 2.0]
+        },
+        "Mesh": {
+          "material": "materials/home_clyde.material.json"
+        },
+        "MazeSpot": {
+          "role": "clyde",
+          "node": "n_3a2e000d"
+        }
+      }
+    },
+    {
+      "id": "e_3a2e2003",
+      "name": "Home Inky",
+      "components": {
+        "Transform": {
+          "position": [27.0, 0.02, 27.0],
+          "scale": [2.0, 0.02, 2.0]
+        },
+        "Mesh": {
+          "material": "materials/home_inky.material.json"
+        },
+        "MazeSpot": {
+          "role": "inky",
+          "node": "n_3a2e0010"
+        }
+      }
+    },
+    {
+      "id": "e_3a2e2004",
+      "name": "Spawn 1",
+      "components": {
+        "Transform": {
+          "position": [-9.0, 0.02, -3.0],
+          "scale": [1.2, 0.02, 1.2]
+        },
+        "Mesh": {
+          "material": "materials/spawn.material.json"
+        },
+        "MazeSpot": {
+          "node": "n_3a2e0006"
+        }
+      }
+    },
+    {
+      "id": "e_3a2e2005",
+      "name": "Spawn 2",
+      "components": {
+        "Transform": {
+          "position": [9.0, 0.02, -3.0],
+          "scale": [1.2, 0.02, 1.2]
+        },
+        "Mesh": {
+          "material": "materials/spawn.material.json"
+        },
+        "MazeSpot": {
+          "node": "n_3a2e0007"
+        }
+      }
+    },
+    {
+      "id": "e_3a2e2006",
+      "name": "Spawn 3",
+      "components": {
+        "Transform": {
+          "position": [-9.0, 0.02, 9.0],
+          "scale": [1.2, 0.02, 1.2]
+        },
+        "Mesh": {
+          "material": "materials/spawn.material.json"
+        },
+        "MazeSpot": {
+          "node": "n_3a2e000a"
+        }
+      }
+    },
+    {
+      "id": "e_3a2e2007",
+      "name": "Spawn 4",
+      "components": {
+        "Transform": {
+          "position": [9.0, 0.02, 9.0],
+          "scale": [1.2, 0.02, 1.2]
+        },
+        "Mesh": {
+          "material": "materials/spawn.material.json"
+        },
+        "MazeSpot": {
+          "node": "n_3a2e000b"
         }
       }
     }
