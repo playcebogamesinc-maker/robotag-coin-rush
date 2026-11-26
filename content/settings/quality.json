@@ -1,0 +1,30 @@
+{
+  "type": "quality",
+  "version": 1,
+  "default": {
+    "desktop": "high",
+    "android": "medium"
+  },
+  "profiles": {
+    "low": {
+      "hdr": false,
+      "bloom": false,
+      "msaa": 1,
+      "shadows": false,
+      "soft_shadows": false,
+      "blob_shadows": true,
+      "max_particles": 400,
+      "max_effects": 8,
+      "max_overdraw": 1.5,
+      "target_fps": 30
+    },
+    "medium": {
+      "render_scale": 0.8,
+      "shadow_map_size": 1024,
+      "max_particles": 1000,
+      "max_effects": 16,
+      "max_overdraw": 3
+    },
+    "high": {}
+  }
+}

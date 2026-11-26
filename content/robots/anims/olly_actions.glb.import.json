@@ -1,0 +1,8 @@
+{
+  "type": "model_import",
+  "version": 1,
+  "clips": {
+    "nod": {},
+    "shrug": {}
+  }
+}

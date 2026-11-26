@@ -1,0 +1,76 @@
+{
+  "id": "s_c014a001",
+  "type": "scene",
+  "version": 1,
+  "entities": [
+    {
+      "id": "e_f32f8975",
+      "name": "Floor",
+      "components": {
+        "Transform": {
+          "scale": [22.0, 1.0, 22.0]
+        },
+        "Mesh": {
+          "mesh": "plane",
+          "material": "materials/floor.material.json"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_66e1e404",
+      "name": "Sun",
+      "components": {
+        "Transform": {
+          "position": [-6.0, 8.0, 6.0],
+          "rotation": [-45.0, -40.0, 0.0]
+        },
+        "DirectionalLight": {},
+        "AmbientLight": {}
+      }
+    },
+    {
+      "id": "e_3398d7bd",
+      "name": "Main Camera",
+      "components": {
+        "Transform": {
+          "position": [0.0, 62.0, 30.0],
+          "rotation": [-62.0, 0.0, 0.0]
+        },
+        "Camera": {}
+      }
+    },
+    {
+      "id": "e_c0fc0a69",
+      "name": "Railway",
+      "components": {
+        "RailNetwork": {
+          "rails": "scenes/main.rails.json",
+          "material": "materials/rail.material.json",
+          "radius": 0.08
+        }
+      }
+    },
+    {
+      "id": "e_9f0467e9",
+      "name": "Player",
+      "components": {
+        "Transform": {
+          "position": [0.0, 0.38, 18.0],
+          "rotation": [0.0, 90.0, 0.0]
+        },
+        "Robot": {
+          "start_node": "n_c014a003",
+          "start_port": 1,
+          "rig": "robots/olly.rig.json",
+          "anim_graph": "robots/olly.animgraph.json",
+          "body_material": "materials/olly_white.material.json",
+          "accent_material": "materials/olly_blue.material.json",
+          "visor_material": "materials/olly_visor.material.json",
+          "eye_material": "materials/olly_eye.material.json",
+          "wheel_material": "materials/olly_tyre.material.json"
+        }
+      }
+    }
+  ]
+}

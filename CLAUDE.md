@@ -1,0 +1,48 @@
+# CLAUDE.md
+
+Coin Rush is a Robotag game (game id `coin_rush`): a single-player, offline Pac-Man on
+RoboTag's rails. It is its own product in its own repo (`robotag-coin-rush`), cloned into the
+engine checkout at `games/coin-rush/`, so the engine's rules and skills apply: read
+`../../AGENTS.md` and use the skills in `../../.claude/skills/`. Start with
+`engine-api-for-games` (what game code may use) and `write-game-code` (code, schemas, tests),
+then `build-and-test`, `edit-content`, `rail-layout`, `add-ui-screen`.
+
+## Rules
+
+- **Never change the engine from here.** Everything Coin Rush needs lives in this repo. If the
+  engine is missing something (the skill marks it "not yet"), write an engine request in
+  `docs/engine-requests/` and tell Vlad; he builds it in the engine project.
+- **Milestones.** Gameplay first, with simple meshes and no environment art. Polish only after
+  the gameplay is confirmed. Status below.
+- The design: `docs/gameplay.md`. Units are metres.
+
+## Layout
+
+- `coin_rush.rtproject`: name, start scene, `"game": "coin_rush"`.
+- `content/`: scenes, materials, robots, settings, `ui/` (paths in documents are relative to it).
+- `code/`: the game's C++ (`rt_add_game(coin_rush ...)`), built with the engine; tests run in
+  ctest (`-L game:coin_rush`).
+- `schemas/coin_rush.schema`: the game's components and documents, when it has some.
+
+## Milestones
+
+| # | Milestone | State |
+|---|---|---|
+| 1 | Project setup: project, test track, player robot, first system (`run` model -> score HUD), test | done |
+| 2 | The maze: the real rail labyrinth (loops, 12 / 18 / 24 m corridors, corner homes, central spawns) | |
+| 3 | Coins and score: coins along rails, pickup, 5 levels with doubling value and colours | |
+| 4 | Hunters: Blinky, Pinky, Inky, Clyde (needs engine: robot steering, contact rules) | |
+| 5 | Run flow and HUD: start screen, countdown, pause, results, best score, premove arrow (needs engine: game flow, save data) | |
+| 6 | Hold-to-view map (needs engine: map drawing in UI) | |
+| 7 | Playtest and tune on a phone | |
+
+## Checks (from the engine root, `cd ../..`)
+
+```
+cmake --build --preset linux-debug            # Windows: build.cmd
+ctest --test-dir build/linux -C Debug -L game:coin_rush --output-on-failure
+build/linux/bin/Debug/rt validate games/coin-rush
+build/linux/bin/Debug/rt ui build games/coin-rush --check
+build/linux/bin/Debug/rt render games/coin-rush/content/scenes/main.scene.json out.png \
+    --game --ui --size 540x1170 --play 2
+```

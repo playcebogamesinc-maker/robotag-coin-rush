@@ -1,0 +1,128 @@
+{
+  "type": "animgraph",
+  "version": 1,
+  "layers": [
+    {
+      "name": "body",
+      "start": "drive",
+      "states": {
+        "drive": {},
+        "nod": {
+          "clip": "robots/anims/olly_actions.glb#nod",
+          "joints": "head"
+        },
+        "shrug": {
+          "clip": "robots/anims/olly_actions.glb#shrug",
+          "joints": "head arm_l arm_r"
+        },
+        "spin": {
+          "clip": "robots/anims/spin.clip.json",
+          "procedural": 0.3
+        },
+        "victory": {
+          "clip": "robots/anims/victory.clip.json",
+          "procedural": 0.0
+        },
+        "wave": {
+          "clip": "robots/anims/wave.clip.json",
+          "joints": "head arm_r"
+        }
+      },
+      "transitions": [
+        {
+          "to": "victory",
+          "on": "victory",
+          "blend": 0.3
+        },
+        {
+          "from": "victory",
+          "to": "drive",
+          "on": "reset",
+          "blend": 0.3
+        },
+        {
+          "from": "drive",
+          "to": "wave",
+          "on": "wave"
+        },
+        {
+          "from": "drive",
+          "to": "spin",
+          "on": "spin"
+        },
+        {
+          "from": "drive",
+          "to": "nod",
+          "on": "nod",
+          "blend": 0.1
+        },
+        {
+          "from": "drive",
+          "to": "shrug",
+          "on": "shrug"
+        },
+        {
+          "from": "wave",
+          "to": "drive",
+          "on": "end",
+          "blend": 0.3
+        },
+        {
+          "from": "spin",
+          "to": "drive",
+          "on": "end",
+          "blend": 0.3
+        },
+        {
+          "from": "nod",
+          "to": "drive",
+          "on": "end",
+          "blend": 0.1
+        },
+        {
+          "from": "shrug",
+          "to": "drive",
+          "on": "end"
+        }
+      ]
+    },
+    {
+      "name": "hits",
+      "mode": "additive",
+      "start": "none",
+      "states": {
+        "hit_back": {
+          "clip": "robots/anims/hit_back.clip.json"
+        },
+        "hit_front": {
+          "clip": "robots/anims/hit_front.clip.json"
+        },
+        "none": {}
+      },
+      "transitions": [
+        {
+          "to": "hit_front",
+          "on": "hit_front",
+          "blend": 0.0
+        },
+        {
+          "to": "hit_back",
+          "on": "hit_back",
+          "blend": 0.0
+        },
+        {
+          "from": "hit_front",
+          "to": "none",
+          "on": "end",
+          "blend": 0.0
+        },
+        {
+          "from": "hit_back",
+          "to": "none",
+          "on": "end",
+          "blend": 0.0
+        }
+      ]
+    }
+  ]
+}

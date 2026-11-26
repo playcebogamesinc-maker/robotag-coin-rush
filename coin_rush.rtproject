@@ -1,0 +1,7 @@
+{
+  "type": "project",
+  "version": 1,
+  "name": "Coin Rush",
+  "start_scene": "scenes/main.scene.json",
+  "game": "coin_rush"
+}
