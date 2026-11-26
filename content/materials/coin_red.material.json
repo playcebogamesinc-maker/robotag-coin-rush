@@ -1,0 +1,8 @@
+{
+  "type": "material",
+  "version": 2,
+  "family": "emissive",
+  "base_color": [1.0, 0.15, 0.1],
+  "roughness": 0.2,
+  "intensity": 1.6
+}

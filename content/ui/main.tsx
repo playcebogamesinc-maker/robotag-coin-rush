@@ -1,11 +1,12 @@
-// Coin Rush's game UI. Milestone 1: the score at the top, from the game code's "run" model
-// (code/core/coin_rush.cpp). Built by `rt ui build games/coin-rush` (the editor rebuilds it on
+// Coin Rush's game UI: the score at the top, from the game code's "run" model
+// (code/core/coin_rush.cpp). The score is the only number shown in play (docs/gameplay.md); the
+// level shows only as the coins' colour. Built by `rt ui build games/coin-rush` (the editor rebuilds it on
 // save). Skill: add-ui-screen.
 import { mount, useModel, FpsCounter, Label, SafeArea } from "@robotag/ui";
 
 declare module "@robotag/ui" {
     interface Models {
-        run: { score: number };
+        run: { score: number; level: number; coins_left: number; won: boolean };
     }
 }
 

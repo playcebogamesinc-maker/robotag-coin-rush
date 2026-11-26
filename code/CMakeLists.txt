@@ -9,11 +9,13 @@ add_library(coin_rush_core STATIC
     core/coin_rush.cpp
     core/maze.hpp
     core/maze.cpp
+    core/coins.hpp
+    core/coins.cpp
 )
 target_include_directories(coin_rush_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})  # "core/..."
 # The game's own components (MazeSpot, ...).
 rt_add_schema(coin_rush_core PUBLIC ${RT_GAME_DIR}/schemas/coin_rush.schema)
-target_link_libraries(coin_rush_core PUBLIC rt_runtime rt_document rt_scene rt_rails_core)
+target_link_libraries(coin_rush_core PUBLIC rt_runtime rt_document rt_scene rt_rails_core rt_robots_core)
 if(MSVC)
     target_compile_options(coin_rush_core PRIVATE /W4 /permissive-)
 else()

@@ -14,7 +14,9 @@
 #include <vector>
 
 #include "all_modules.hpp"
+#include "core/coins.hpp"
 #include "core/maze.hpp"
+#include "rails/core/rail_bake.hpp"
 #include "document/game.hpp"
 #include "project/project.hpp"
 #include "robots/core/robot_motion.hpp"
@@ -36,17 +38,114 @@ int failures = 0;
         }                                      \
     } while (0)
 
-// The run publishes the HUD's "run" model with a score of 0.
+// The latest "run" model a session published ("" = none).
+std::string run_model(runtime::Session& session, std::string last = "") {
+    for (const auto& [name, json] : session.take_ui_models()) {
+        if (name == "run") last = json;
+    }
+    return last;
+}
+
+// The run starts on level 1 with a score of 0 and puts its coins in the scene.
 void test_run(const scene::Scene& scene, const std::string& content) {
     runtime::Session session;
     session.start(scene, content);
     for (int i = 0; i < 120; ++i) session.tick();
-    bool score_shown = false;
-    for (const auto& [name, json] : session.take_ui_models()) {
-        if (name == "run" && json == "{\"score\":0}") score_shown = true;
+    const std::string model = run_model(session);
+    int coins = 0;
+    for (const scene::Entity& e : session.scene().entities) {
+        if (e.name.starts_with("Coin ") && e.mesh) ++coins;
     }
     session.stop();
-    CHECK(score_shown, "the run didn't publish the \"run\" model with score 0");
+    CHECK(model.starts_with("{\"score\":0,\"level\":1,"), "run model: %s", model.c_str());
+    CHECK(coins > 100, "only %d coins in the running scene", coins);
+}
+
+// Coins line every rail at even spacing, off the nodes, one rail's coins in a row.
+void test_coin_spots(const coin_rush::Maze& maze) {
+    const std::vector<coin_rush::CoinSpot> spots = coin_rush::coin_spots(maze.graph);
+    rails::BakeCache bakes;
+    bakes.update(maze.graph);
+    std::map<std::string, std::vector<float>> per_rail;
+    for (const coin_rush::CoinSpot& c : spots) per_rail[c.rail].push_back(c.s);
+    CHECK(per_rail.size() == maze.graph.edges.size(), "coins on %zu of %zu rails",
+          per_rail.size(), maze.graph.edges.size());
+    for (const auto& [rail, s] : per_rail) {
+        const rails::EdgeBake* bake = bakes.find(rail);
+        if (!bake) continue;
+        const float gap = bake->length / static_cast<float>(s.size());
+        CHECK(gap > 2.5f && gap < 3.5f, "rail %s: coins %.2f m apart", rail.c_str(),
+              static_cast<double>(gap));
+        CHECK(s.front() > 1.0f && bake->length - s.back() > 1.0f, "rail %s: a coin on a node",
+              rail.c_str());
+    }
+    for (const rails::Node& n : maze.graph.nodes) {  // Nothing sits on a node (spawns).
+        for (const coin_rush::CoinSpot& c : spots) {
+            const glm::vec2 d(c.position.x - n.data.position.x, c.position.z - n.data.position.z);
+            CHECK(glm::length(d) > coin_rush::kPickupRadius, "coin on rail %s within reach of node %s",
+                  c.rail.c_str(), n.id.c_str());
+        }
+    }
+    std::printf("coin_rush_test: %zu coins on %zu rails\n", spots.size(), per_rail.size());
+}
+
+// Levels: clearing the board brings every coin back worth double, level 5 wins, a coin is
+// picked up only once.
+void test_levels(const coin_rush::Maze& maze) {
+    coin_rush::CoinBoard board(coin_rush::coin_spots(maze.graph));
+    const int n = static_cast<int>(board.spots().size());
+    const glm::vec3 first = board.spots()[0].position;
+    CHECK(board.collect(first).points == 1, "the first coin isn't worth 1");
+    CHECK(board.collect(first).points == 0, "a coin was picked up twice");
+    CHECK(board.collect(glm::vec3(1000.0f)).taken.empty(), "a coin out of reach was picked up");
+    int expected = 0;
+    for (int level = 1; level <= 5; ++level) {
+        CHECK(board.level() == level, "level %d, expected %d", board.level(), level);
+        CHECK(board.level_info().points == 1 << (level - 1), "level %d is worth %d", level,
+              board.level_info().points);
+        expected += n << (level - 1);
+        bool cleared = false;
+        for (int i = 0; i < n; ++i) {
+            if (board.out(i)) cleared |= board.collect(board.spots()[static_cast<size_t>(i)].position).level_cleared;
+        }
+        CHECK(cleared, "level %d didn't clear", level);
+        CHECK(board.score() == expected, "score %d after level %d, expected %d", board.score(),
+              level, expected);
+        if (level < 5) CHECK(board.left() == n, "level %d: %d coins back of %d", level + 1, board.left(), n);
+    }
+    CHECK(board.won(), "clearing level 5 didn't win the run");
+    CHECK(board.collect(first).points == 0, "a coin was picked up after the win");
+}
+
+// Driving picks coins up: the player swipes away from the spawn, the score goes up and the
+// coins it drove over are gone from the scene.
+void test_drive_picks_up_coins(const scene::Scene& scene, const std::string& content) {
+    int best = 0;
+    for (const float dy : {-300.0f, 300.0f}) {
+        runtime::Session session;
+        session.start(scene, content);
+        session.tick();
+        const float w = 540.0f, h = 1170.0f;
+        session.pointer({runtime::PointerEvent::Type::Down, 270.0f, 600.0f, w, h});
+        session.pointer({runtime::PointerEvent::Type::Move, 270.0f, 600.0f + dy * 0.5f, w, h});
+        session.pointer({runtime::PointerEvent::Type::Up, 270.0f, 600.0f + dy, w, h});
+        std::string model;
+        for (int i = 0; i < 4 * 60; ++i) {
+            session.tick();
+            model = run_model(session, model);
+        }
+        int hidden = 0;
+        for (const scene::Entity& e : session.scene().entities) {
+            if (e.name.starts_with("Coin ") && !e.mesh) ++hidden;
+        }
+        session.stop();
+        int score = 0;
+        std::sscanf(model.c_str(), "{\"score\":%d", &score);
+        CHECK(score == hidden, "score %d but %d coins gone", score, hidden);
+        best = score > best ? score : best;
+    }
+    std::printf("coin_rush_test: a 4 s drive picked up %d coins\n", best);
+    CHECK(best >= 3, "driving from the spawn picked up %d coins", best);
 }
 
 // The start scene's maze keeps every layout rule, and the player starts on a spawn.
@@ -198,6 +297,9 @@ int main() {
     if (maze) {
         test_maze_rules(*maze, *scene);
         test_maze_check_catches_dead_end(*maze);
+        test_coin_spots(*maze);
+        test_levels(*maze);
+        test_drive_picks_up_coins(*scene, project->content);
         std::string start;
         for (const scene::Entity& e : scene->entities) {
             for (const auto& box : e.module_components) {
