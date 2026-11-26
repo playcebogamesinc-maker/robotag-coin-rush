@@ -22,6 +22,7 @@ then `build-and-test`, `edit-content`, `rail-layout`, `add-ui-screen`.
 - `content/`: scenes, materials, robots, settings, `ui/` (paths in documents are relative to it).
 - `code/`: the game's C++ (`rt_add_game(coin_rush ...)`), built with the engine; tests run in
   ctest (`-L game:coin_rush`).
+- `code/core/coins.hpp`: coins along the rails, pickup, levels and score (`docs/coins.md`).
 - `schemas/coin_rush.schema`: the game's components (`MazeSpot`: hunter homes, player spawns).
 - `tools/maze_layout.py`: the maze layout as ASCII -> rt commands (`docs/maze.md`).
 
@@ -31,7 +32,7 @@ then `build-and-test`, `edit-content`, `rail-layout`, `add-ui-screen`.
 |---|---|---|
 | 1 | Project setup: project, test track, player robot, first system (`run` model -> score HUD), test | done |
 | 2 | The maze: the real rail labyrinth (loops, 12 / 18 / 24 m corridors, corner homes, central spawns) | done: `docs/maze.md`, `tools/maze_layout.py`, `MazeSpot`, `code/core/maze.hpp` (random spawn waits for engine request #3) |
-| 3 | Coins and score: coins along rails, pickup, 5 levels with doubling value and colours | |
+| 3 | Coins and score: coins along rails, pickup, 5 levels with doubling value and colours | done: `docs/coins.md`, `code/core/coins.hpp` (`coin_spots`, `CoinBoard`), coin materials; win after level 5 is only a flag until the run flow (M5) |
 | 4 | Hunters: Blinky, Pinky, Inky, Clyde (needs engine: robot steering, contact rules) | |
 | 5 | Run flow and HUD: start screen, countdown, pause, results, best score, premove arrow (needs engine: game flow, save data) | |
 | 6 | Hold-to-view map (needs engine: map drawing in UI) | |
