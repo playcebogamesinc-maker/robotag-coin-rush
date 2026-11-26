@@ -13,9 +13,7 @@
 //   - Close-range override: near the player, every hunter targets the player.
 //   - Staggered release, then scatter to its own corner, then chase for the rest of the run.
 //   - Speed ramps per level; behaviour and release timing stay the same.
-//
-// Driving the hunter robots with these answers needs engine request #3 (docs/engine-requests/
-// hunters.md); until then they drive on autopilot (random exits).
+
 
 #include <array>
 #include <cstdint>

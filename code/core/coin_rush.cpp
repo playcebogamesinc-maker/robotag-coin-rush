@@ -37,11 +37,10 @@ void show_coin(scene::Entity& e, const Level& level) {
 }
 
 // One run of Coin Rush: the maze (milestone 2), its coins, the level and the score the HUD
-// shows (milestone 3), and the hunters (milestone 4): a touch from one ends the run, the score
-// stays. The run flow (M5) adds the countdown, results and Play Again later.
-//
-// The hunters drive on autopilot (random exits) until engine request #3 lets game code steer
-// them with the brains in hunters.hpp (docs/hunters.md).
+// shows (milestone 3), and the hunters (milestone 4, docs/hunters.md): each waits at home until
+// its release, scatters to its corner, then hunts with its own brain (hunters.hpp), faster on
+// each level; a touch from one ends the run, everything stands still and the score stays. The
+// run flow (M5) adds the countdown, results and Play Again later.
 class Run : public runtime::Instance {
 public:
     Run(scene::Scene& scene, std::optional<Maze> maze) : maze_(std::move(maze)) {
@@ -51,8 +50,13 @@ public:
             if (robot->player && player_.empty()) {
                 player_ = e.id;
                 player_name_ = e.name;
+                player_speed_ = robot->top_speed;
+                player_pos_ = e.transform.position;
             }
-            if (!robot->player && hunter_from_name(e.name)) ++hunters_;
+            if (robot->player) continue;
+            if (std::optional<Hunter> which = hunter_from_name(e.name)) {
+                hunters_.push_back({e.id, *which, e.transform.position});
+            }
         }
         if (maze_) {
             board_.emplace(coin_spots(maze_->graph));
@@ -65,6 +69,7 @@ public:
                 show_coin(coin, board_->level_info());
                 coins_.push_back(coin.id);
             }
+            start_hunters();
         }
         publish();
     }
@@ -72,11 +77,13 @@ public:
     void tick(scene::Scene& scene, float /*dt*/) override {
         if (!board_ || player_.empty() || caught_) return;
         if (check_catch()) {
+            robots::set_held("", true);  // Everything stands still.
             publish();
             return;
         }
         const scene::Entity* player = scene.find(player_);
         if (!player) return;
+        steer_hunters(scene, player->transform.position);
         const CoinBoard::Pickup pickup = board_->collect(player->transform.position);
         if (pickup.taken.empty()) return;
         for (int i : pickup.taken) {
@@ -86,11 +93,69 @@ public:
             for (const std::string& id : coins_) {
                 if (scene::Entity* coin = scene.find(id)) show_coin(*coin, board_->level_info());
             }
+            set_hunter_speed();
         }
         publish();
     }
 
 private:
+    struct HunterBot {
+        std::string id;  // Entity id.
+        Hunter which;
+        glm::vec3 home{0.0f};  // Its home corner (where it starts).
+        bool released = false;
+    };
+    // Where each hunter aims (HunterBot order), read by its driver in the Robots tick.
+    using Targets = std::vector<glm::vec3>;
+
+    // Hold every hunter at home and give each its brain as the robot's driver.
+    void start_hunters() {
+        targets_ = std::make_shared<Targets>();
+        for (size_t i = 0; i < hunters_.size(); ++i) {
+            targets_->push_back(hunters_[i].home);
+            robots::set_held(hunters_[i].id, true);
+            const std::shared_ptr<const Targets> targets = targets_;
+            robots::set_driver(hunters_[i].id, [targets, i](const robots::DriveRequest& r) {
+                return choose_swipe(*r.map, r.node, r.entry, (*targets)[i]);
+            });
+        }
+        set_hunter_speed();
+    }
+
+    void set_hunter_speed() {
+        const float speed = hunter_speed(board_ ? board_->level() : 1, player_speed_);
+        for (const HunterBot& h : hunters_) robots::set_top_speed(h.id, speed);
+    }
+
+    // Releases hunters on time and points each at its target for this tick.
+    void steer_hunters(const scene::Scene& scene, const glm::vec3& player) {
+        ++ticks_;
+        const glm::vec3 step = player - player_pos_;  // The way the player is heading.
+        if (glm::dot(step, step) > 1e-6f) player_forward_ = step;
+        player_pos_ = player;
+        glm::vec3 blinky = player;
+        for (const HunterBot& h : hunters_) {
+            const scene::Entity* e = scene.find(h.id);
+            if (e && h.which == Hunter::Blinky) blinky = e->transform.position;
+        }
+        for (size_t i = 0; i < hunters_.size(); ++i) {
+            HunterBot& h = hunters_[i];
+            const HunterMode mode = hunter_mode(h.which, ticks_);
+            if (mode != HunterMode::Home && !h.released) {
+                h.released = true;
+                robots::set_held(h.id, false);
+            }
+            const scene::Entity* e = scene.find(h.id);
+            Sighting seen;
+            seen.player = player;
+            seen.player_forward = player_forward_;
+            seen.blinky = blinky;
+            seen.self = e ? e->transform.position : h.home;
+            seen.home = h.home;
+            (*targets_)[i] = hunter_target(h.which, mode, seen);
+        }
+    }
+
     // A hunter touched the player since the last tick (robots' contact log).
     bool check_catch() {
         int64_t newest = last_contact_;
@@ -118,15 +183,21 @@ private:
                                          ",\"won\":" + (won ? "true" : "false") +
                                          ",\"caught\":" + (caught_ ? "true" : "false") +
                                          ",\"caught_by\":\"" + caught_by_ + "\"" +
-                                         ",\"hunters\":" + std::to_string(hunters_) + "}");
+                                         ",\"hunters\":" + std::to_string(hunters_.size()) +
+                                         "}");
     }
 
-    std::optional<Maze> maze_;  // Hunters (M4) drive on it.
+    std::optional<Maze> maze_;
     std::optional<CoinBoard> board_;
     std::vector<std::string> coins_;  // Coin entity per board spot.
     std::string player_;              // The player robot's entity.
     std::string player_name_;         // ...and its name (contacts name robots).
-    int hunters_ = 0;                 // Hunter robots in the scene (Blinky, Pinky, ...).
+    float player_speed_ = 9.8f;       // Its top speed (hunter speeds are shares of it).
+    glm::vec3 player_pos_{0.0f};      // Last tick's position...
+    glm::vec3 player_forward_{0.0f, 0.0f, -1.0f};  // ...and the way it last moved.
+    std::vector<HunterBot> hunters_;  // Blinky, Pinky, Inky, Clyde as found in the scene.
+    std::shared_ptr<Targets> targets_;
+    int64_t ticks_ = 0;               // Run ticks so far (the hunters' release clock).
     int64_t last_contact_ = -1;       // Newest contact tick looked at.
     bool caught_ = false;
     std::string caught_by_;           // The hunter that caught the player.

@@ -45,8 +45,8 @@ on. Their flat pads show them in renders and the editor. Game code reads the maz
 `load_maze()` / `check_maze()` (`code/core/maze.hpp`); `coin_rush_test` fails when a rule
 breaks, and a run prints any broken rule at start.
 
-Not yet: a run picking a random spawn. Today the player starts on `Spawn 3`; choosing the
-spawn at run start needs engine request #3 (placing a robot on a node from game code).
+Not yet: a run picking a random spawn. Today the player starts on `Spawn 3`; the engine can now place
+a robot on a node (`robots::place_robot`); the run flow (milestone 5) picks the spawn.
 
 ## Change it
 

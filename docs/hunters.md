@@ -10,10 +10,16 @@ each parked on its home corner (the `MazeSpot` of the same role), tinted in its 
 (`materials/hunter_<name>.material.json` body, `home_<name>` accents). The run finds them by
 name, so keep the names.
 
-A touch from a hunter ends the run (`code/core/coin_rush.cpp`): the run reads the robots'
-contact log, and the first contact between the player and a hunter sets `caught` in the `run`
-model. The score stays, no more coins are counted, and the HUD shows "Caught!". The results
-screen and Play Again come with milestone 5.
+Their Robots have `contact_group: "hunters"` (they pass through each other) and
+`bounce: false` (touching the player is logged, nobody bounces).
+
+The run (`code/core/coin_rush.cpp`) drives them: at the start it holds each hunter at home
+(`robots::set_held`), gives each its brain as the robot's driver (`robots::set_driver` with
+`choose_swipe(hunter_target(...))`) and sets the level 1 speed (`robots::set_top_speed`). Every
+tick it releases hunters on time and updates each one's target; on each level it raises their
+speed. A touch from a hunter ends the run: the first player-hunter contact in the robots'
+contact log sets `caught` in the `run` model, every robot is held, the score stays and the HUD
+shows "Caught!". The results screen and Play Again come with milestone 5.
 
 ## The brains
 
@@ -29,19 +35,15 @@ screen and Play Again come with milestone 5.
 | Staggered release | `hunter_mode()`: Blinky leaves 1 s after the start, the others 2 s apart. |
 | Scatter, then chase | 5 s heading for its own corner after release, then chasing for the rest of the run. |
 | Speed per level | `hunter_speed()`: 60 / 70 / 80 / 90 / 100 % of the player's top speed. |
-| Hunters ignore each other | Engine request #4 (below). |
+| Hunters ignore each other | `contact_group: "hunters"` on their Robots. |
 
 All numbers live in `HunterRules` and `kHunterSpeed`, to tune in milestone 7. The test drives
 each hunter with its brain on the real maze against a player waiting on a spawn: all four get
 there without a single stop or reverse.
 
-## Waiting for the engine
+## Tuning
 
-Game code can't steer a robot yet, so in play the hunters drive on the engine's autopilot:
-random exits, never stopping, all leaving home at once, at the level 1 speed (5.9 m/s) on
-every level, and they bounce off each other and the player. Engine requests #3 and #4
-([hunters.md](engine-requests/hunters.md)) add what's missing: a game driver per robot, speed,
-hold and place from game code, and contact rules (hunters pass through each other; touching
-the player is an event, not a bounce). Once they land, the run plugs the brains in:
-`set_driver` with `choose_swipe(hunter_target(...))`, `set_held` until each release and after a
-catch, `set_top_speed(hunter_speed(level))` on each level.
+Everything is in `HunterRules` and `kHunterSpeed` (`code/core/hunters.hpp`); milestone 7 tunes
+them on a phone. `coin_rush_test` checks the release order, that hunters never touch each
+other, that a player standing still gets caught (by Blinky, about 20 s today) and that
+everything stands still after the catch.

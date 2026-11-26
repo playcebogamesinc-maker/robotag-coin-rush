@@ -361,7 +361,7 @@ void test_choose_swipe(const coin_rush::Maze& maze) {
     CHECK(checked > 20, "only %d choices checked", checked);
 }
 
-// A hunter driven by its brain (as the engine will once it can steer robots) leaves home after
+// A hunter driven by its brain (as its robot driver does in a run) leaves home after
 // its release, never stops and never turns back; Blinky catches a player waiting on a spawn.
 // (Pinky, Inky and Clyde aim around a player who doesn't move: in a run, Blinky is the one who
 // punishes standing still.)
@@ -432,31 +432,58 @@ void test_hunters_catch(const coin_rush::Maze& maze) {
     }
 }
 
-// The start scene has the four hunters, the run counts them, and a hunter touching the
-// player ends the run: the score stays and the model says who caught the player.
+// The start scene has the four hunters. In a run each waits at home until its release, then
+// drives with its brain; hunters pass through each other; a hunter touching the player ends the
+// run: everything stands still, the score stays and the model says who caught the player.
 void test_run_with_hunters(const scene::Scene& scene, const std::string& content) {
     runtime::Session session;
     session.start(scene, content);
+    const char* names[] = {"Blinky", "Pinky", "Inky", "Clyde"};
+    const auto where = [&](const char* name) {
+        for (const scene::Entity& e : session.scene().entities) {
+            if (e.name == name) return e.transform.position;
+        }
+        return glm::vec3(-1000.0f);
+    };
+    std::vector<glm::vec3> homes;
+    for (const char* n : names) homes.push_back(where(n));
+    const auto moved = [&](int i) { return glm::distance(where(names[i]), homes[i]) > 0.5f; };
+
     std::string model;
     int caught_tick = -1;
+    bool held_early = true, blinky_first = false;
     for (int i = 0; i < 120 * 60 && caught_tick < 0; ++i) {
         session.tick();
         model = run_model(session, model);
+        if (i == 50) held_early = !moved(0) && !moved(1) && !moved(2) && !moved(3);
+        if (i == 120) blinky_first = moved(0) && !moved(1) && !moved(2) && !moved(3);
         if (model.find("\"caught\":true") != std::string::npos) caught_tick = i;
     }
     CHECK(model.find("\"hunters\":4") != std::string::npos, "run model: %s", model.c_str());
+    CHECK(held_early, "a hunter left home before its release");
+    CHECK(blinky_first, "Blinky isn't the only one out after 2 s");
+    for (const robots::ContactEvent& c : robots::contact_log()) {
+        CHECK(!(coin_rush::hunter_from_name(c.a) && coin_rush::hunter_from_name(c.b)),
+              "%s touched %s: hunters must pass through each other", c.a.c_str(), c.b.c_str());
+    }
+    CHECK(caught_tick >= 0, "no hunter caught a player standing still in 120 s");
     if (caught_tick >= 0) {
         std::printf("coin_rush_test: a player standing still was caught after %.1f s (%s)\n",
                     caught_tick / 60.0, model.c_str());
-        const std::string at_catch = model;
+        session.tick();  // The hold lands on the next tick.
+        std::vector<glm::vec3> at_catch;
+        for (const char* n : names) at_catch.push_back(where(n));
+        const std::string model_at_catch = model;
         for (int i = 0; i < 120; ++i) {
             session.tick();
             model = run_model(session, model);
         }
-        CHECK(model == at_catch, "the run changed after the catch: %s", model.c_str());
+        CHECK(model == model_at_catch, "the run changed after the catch: %s", model.c_str());
+        for (size_t i = 0; i < 4; ++i) {
+            CHECK(glm::distance(where(names[i]), at_catch[i]) < 0.01f,
+                  "%s kept moving after the catch", names[i]);
+        }
     }
-    // Autopilot is seeded per robot, so this is the same every run (Clyde, about 25 s today).
-    CHECK(caught_tick >= 0, "no hunter caught a player standing still in 120 s");
     session.stop();
 }
 
