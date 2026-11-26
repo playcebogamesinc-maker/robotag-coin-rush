@@ -55,12 +55,13 @@ merge their own PRs once CI is green.
 
 - CI: `.github/workflows/build.yml` (from the Hub's template) builds the engine with this game
   in `games/coin-rush/`, runs `ctest -L game:coin_rush`, the UI check and `rt validate`. The
-  required check on `main` is `windows`.
+  check is `windows`.
 - Where it runs: repository variable `CI_RUNNER` (`github` = GitHub's cloud, free for this
   public repo; `local` / unset = this repo's self-hosted runner on Vlad's PC, set up on the
   Hub's Builds page). Switch it on the Hub's Builds page.
 - The workflow needs the repository secret `ENGINE_TOKEN` (fine-grained token, Contents:
   Read-only on `robotag-game-engine`).
-- Build and run the checks above locally first, push, open the PR, turn on auto-merge with a
-  merge commit (`gh pr merge <n> --auto --merge`), subscribe to the PR and stop. Fix a CI
-  failure on the same branch.
+- Build and run the checks above locally first, push, open the PR, subscribe to its activity
+  and stop (don't poll CI). Fix a CI failure on the same branch. Once the `windows` check is
+  green, merge with a merge commit (auto-merge if the repo allows it:
+  `gh pr merge <n> --auto --merge`), and tell Vlad.
