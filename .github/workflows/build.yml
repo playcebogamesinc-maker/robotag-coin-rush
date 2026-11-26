@@ -44,15 +44,18 @@ jobs:
 
       # Windows paths stop at 260 characters and the runner's work folder is deep
       # (ci-runners/<game>/_work/<repo>/<repo>/build/windows/_deps/...), so the build runs
-      # from drive R: mapped onto the workspace. A build folder configured from the long path
-      # is removed once (CMake can't move it).
+      # from drive R: mapped onto the workspace. The first time, what earlier builds left from
+      # the long path (build folder, half-downloaded dependencies) is removed.
       - name: Short path (drive R)
         shell: cmd
         run: |
           subst R: /d >nul 2>&1
           subst R: "%GITHUB_WORKSPACE%" || exit /b 1
-          if exist build\windows\CMakeCache.txt (
-            findstr /c:"CMAKE_HOME_DIRECTORY:INTERNAL=R:/" build\windows\CMakeCache.txt >nul || rmdir /s /q build\windows
+          if not exist .cache\short-path (
+            if exist build\windows rmdir /s /q build\windows
+            if exist .cache\cpm rmdir /s /q .cache\cpm
+            mkdir .cache 2>nul
+            echo R:> .cache\short-path
           )
           exit /b 0
 
