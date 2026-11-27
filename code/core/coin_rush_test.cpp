@@ -49,6 +49,29 @@ std::string run_model(runtime::Session& session, std::string last = "") {
     return last;
 }
 
+// Presses Play on the start screen and waits out the 3-2-1: the run is on.
+std::string start_playing(runtime::Session& session, std::string model = "") {
+    session.ui_request("play", "{}");
+    for (int i = 0; i < 3 * 60 + 1; ++i) {
+        session.tick();
+        model = run_model(session, model);
+    }
+    return model;
+}
+
+// A JSON field's text in a flat model ("" = missing): "score" -> "12", "phase" -> "playing".
+std::string field(const std::string& json, const std::string& name) {
+    const std::string key = "\"" + name + "\":";
+    const size_t at = json.find(key);
+    if (at == std::string::npos) return "";
+    size_t begin = at + key.size();
+    if (json[begin] == '"') {
+        ++begin;
+        return json.substr(begin, json.find('"', begin) - begin);
+    }
+    return json.substr(begin, json.find_first_of(",}", begin) - begin);
+}
+
 // The run starts on level 1 with a score of 0 and puts its coins in the scene.
 void test_run(const scene::Scene& scene, const std::string& content) {
     runtime::Session session;
@@ -127,7 +150,7 @@ void test_drive_picks_up_coins(const scene::Scene& scene, const std::string& con
     for (const float dy : {-300.0f, 300.0f}) {
         runtime::Session session;
         session.start(scene, content);
-        session.tick();
+        start_playing(session);
         const float w = 540.0f, h = 1170.0f;
         session.pointer({runtime::PointerEvent::Type::Down, 270.0f, 600.0f, w, h});
         session.pointer({runtime::PointerEvent::Type::Move, 270.0f, 600.0f + dy * 0.5f, w, h});
@@ -449,7 +472,7 @@ void test_run_with_hunters(const scene::Scene& scene, const std::string& content
     for (const char* n : names) homes.push_back(where(n));
     const auto moved = [&](int i) { return glm::distance(where(names[i]), homes[i]) > 0.5f; };
 
-    std::string model;
+    std::string model = start_playing(session);
     int caught_tick = -1;
     bool held_early = true, blinky_first = false;
     for (int i = 0; i < 120 * 60 && caught_tick < 0; ++i) {
@@ -479,12 +502,119 @@ void test_run_with_hunters(const scene::Scene& scene, const std::string& content
             model = run_model(session, model);
         }
         CHECK(model == model_at_catch, "the run changed after the catch: %s", model.c_str());
+        CHECK(field(model, "phase") == "over" && field(model, "best") == field(model, "score"),
+              "results: %s", model.c_str());
         for (size_t i = 0; i < 4; ++i) {
             CHECK(glm::distance(where(names[i]), at_catch[i]) < 0.01f,
                   "%s kept moving after the catch", names[i]);
         }
+        // Play Again: a fresh run on level 1 with score 0; the best stays.
+        const std::string best = field(model, "best");
+        model = start_playing(session, model);
+        CHECK(field(model, "phase") == "playing" && field(model, "score") == "0" &&
+                  field(model, "caught") == "false" && field(model, "best") == best,
+              "Play Again: %s", model.c_str());
     }
     session.stop();
+}
+
+// The run flow (docs/run-flow.md): the session opens on the start screen with everything held
+// (swipes do nothing); Play counts 3-2-1 with everything frozen, then the player is on a central
+// spawn and drives; pause freezes everyone and resume goes on; Play from the pause menu starts
+// over on a random spawn.
+void test_run_flow(const scene::Scene& scene, const std::string& content,
+                   const coin_rush::Maze& maze) {
+    runtime::Session session;
+    session.start(scene, content);
+    const auto player = [&]() -> glm::vec3 {
+        for (const scene::Entity& e : session.scene().entities) {
+            for (const auto& box : e.module_components) {
+                if (const auto* r = scene::module_component_as<robots::Robot>(*box)) {
+                    if (r->player) return e.transform.position;
+                }
+            }
+        }
+        return glm::vec3(-1000.0f);
+    };
+    const auto node_at = [&](const std::string& id) {
+        for (const rails::Node& n : maze.graph.nodes) {
+            if (n.id == id) return n.data.position;
+        }
+        return glm::vec3(1000.0f);
+    };
+    const auto flat = [](glm::vec3 a, glm::vec3 b) {
+        return glm::distance(glm::vec2(a.x, a.z), glm::vec2(b.x, b.z));
+    };
+    const auto swipe_up = [&]() {
+        const float w = 540.0f, h = 1170.0f;
+        session.pointer({runtime::PointerEvent::Type::Down, 270.0f, 700.0f, w, h});
+        session.pointer({runtime::PointerEvent::Type::Move, 270.0f, 550.0f, w, h});
+        session.pointer({runtime::PointerEvent::Type::Up, 270.0f, 400.0f, w, h});
+    };
+    const auto run_for = [&](int ticks, std::string& model) {
+        for (int i = 0; i < ticks; ++i) {
+            session.tick();
+            model = run_model(session, model);
+        }
+    };
+
+    std::string model;
+    run_for(30, model);
+    const glm::vec3 menu_at = player();
+    swipe_up();
+    run_for(120, model);
+    CHECK(field(model, "phase") == "menu", "start: %s", model.c_str());
+    CHECK(glm::distance(player(), menu_at) < 0.01f, "the player drove on the start screen");
+
+    session.ui_request("play", "{}");
+    run_for(1, model);
+    CHECK(field(model, "phase") == "countdown" && field(model, "countdown") == "3",
+          "after Play: %s", model.c_str());
+    const std::string spawn = field(model, "spawn");
+    CHECK(!spawn.empty(), "no spawn: %s", model.c_str());
+    swipe_up();
+    run_for(60, model);
+    CHECK(field(model, "countdown") == "2", "1 s into the countdown: %s", model.c_str());
+    const glm::vec3 counting_at = player();
+    CHECK(flat(counting_at, node_at(spawn)) < 0.5f, "the player isn't on spawn %s",
+          spawn.c_str());
+    run_for(120, model);
+    CHECK(field(model, "phase") == "playing", "after 3 s: %s", model.c_str());
+    CHECK(glm::distance(player(), counting_at) < 0.01f, "the player moved in the countdown");
+
+    swipe_up();
+    run_for(60, model);
+    CHECK(flat(player(), counting_at) > 1.0f, "the player didn't drive after the countdown");
+    session.ui_request("pause", "{}");
+    run_for(2, model);
+    CHECK(field(model, "phase") == "paused", "after pause: %s", model.c_str());
+    const glm::vec3 paused_at = player();
+    run_for(120, model);
+    CHECK(glm::distance(player(), paused_at) < 0.01f, "the player moved while paused");
+    session.ui_request("menu", "{}");  // The pause menu's Menu button.
+    run_for(1, model);
+    CHECK(field(model, "phase") == "menu", "pause -> menu: %s", model.c_str());
+
+    std::set<std::string> spawns;
+    for (int run = 0; run < 8; ++run) {
+        session.ui_request("play", "{}");
+        run_for(3 * 60 + 1 + run * 7, model);
+        CHECK(field(model, "phase") == "playing" && field(model, "score") == "0",
+              "run %d: %s", run, model.c_str());
+        spawns.insert(field(model, "spawn"));
+        session.ui_request("pause", "{}");
+        run_for(1, model);
+        if (run == 0) {
+            session.ui_request("resume", "{}");
+            run_for(1, model);
+            CHECK(field(model, "phase") == "playing", "resume: %s", model.c_str());
+            session.ui_request("pause", "{}");
+            run_for(1, model);
+        }
+    }
+    session.stop();
+    std::printf("coin_rush_test: 8 runs started on %zu different spawns\n", spawns.size());
+    CHECK(spawns.size() >= 2, "every run started on the same spawn");
 }
 
 }  // namespace
@@ -519,6 +649,7 @@ int main() {
         test_coin_spots(*maze);
         test_levels(*maze);
         test_drive_picks_up_coins(*scene, project->content);
+        test_run_flow(*scene, project->content, *maze);
         test_choose_swipe(*maze);
         test_hunters_catch(*maze);
         std::string start;

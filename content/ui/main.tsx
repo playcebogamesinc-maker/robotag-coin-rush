@@ -1,9 +1,12 @@
-// Coin Rush's game UI: the score at the top (and "Caught!" when a hunter ends the run; the
-// results screen comes with milestone 5), from the game code's "run" model
-// (code/core/coin_rush.cpp). The score is the only number shown in play (docs/gameplay.md); the
-// level shows only as the coins' colour. Built by `rt ui build games/coin-rush` (the editor rebuilds it on
-// save). Skill: add-ui-screen.
-import { mount, useModel, FpsCounter, Label, SafeArea, Show } from "@robotag/ui";
+// Coin Rush's game UI, from the game code's "run" model (code/core/coin_rush.cpp) and back to
+// it with requests ("play", "pause", "resume", "menu"). The run flow (docs/run-flow.md): start
+// screen -> 3-2-1 countdown -> play (HUD: score, pause button, premove arrow) <-> pause menu ->
+// results (Caught! / Cleared!, score, best, Play Again, Menu). The score is the only number shown
+// in play (docs/gameplay.md); the level shows only as the coins' colour. Built by
+// `rt ui build games/coin-rush` (the editor rebuilds it on save). Skill: add-ui-screen.
+import { mount, FpsCounter } from "@robotag/ui";
+import { Hud } from "./hud";
+import { Countdown, PauseMenu, Results, StartScreen } from "./screens";
 
 declare module "@robotag/ui" {
     interface Models {
@@ -11,25 +14,23 @@ declare module "@robotag/ui" {
             score: number;
             level: number;
             coins_left: number;
-            won: boolean;
-            caught: boolean; // A hunter touched the player: the run is over (milestone 4).
+            won: boolean; // The last coin of level 5 is gone: Cleared!
+            caught: boolean; // A hunter touched the player: Caught!
             caught_by: string;
             hunters: number;
+            phase: "menu" | "countdown" | "playing" | "paused" | "over";
+            countdown: number; // 3, 2, 1 in the countdown, else 0.
+            best: number; // Best score so far.
+            new_best: boolean; // This run beat it (results).
+            plan: "" | "up" | "left" | "right" | "down"; // The queued premove.
+            spawn: string; // The node this run started on.
         };
     }
 }
 
-function Score() {
-    const run = useModel("run");
-    return (
-        <SafeArea style={{ flex: 1, alignItems: "center", paddingTop: 16 }}>
-            <Label variant="title">{String(run()?.score ?? 0)}</Label>
-            <Show when={run()?.caught}>
-                <Label variant="title">Caught!</Label>
-            </Show>
-        </SafeArea>
-    );
-}
-
-mount("hud", () => <Score />);
+mount("hud", () => <Hud />);
+mount("menu", () => <StartScreen />);
+mount("menu", () => <PauseMenu />);
+mount("menu", () => <Results />);
+mount("modal", () => <Countdown />);
 mount("debug", () => <FpsCounter />);

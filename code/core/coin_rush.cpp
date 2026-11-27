@@ -36,11 +36,41 @@ void show_coin(scene::Entity& e, const Level& level) {
     e.mesh->material = level.material;
 }
 
-// One run of Coin Rush: the maze (milestone 2), its coins, the level and the score the HUD
-// shows (milestone 3), and the hunters (milestone 4, docs/hunters.md): each waits at home until
-// its release, scatters to its corner, then hunts with its own brain (hunters.hpp), faster on
-// each level; a touch from one ends the run, everything stands still and the score stays. The
-// run flow (M5) adds the countdown, results and Play Again later.
+// The best score so far. Kept while the app runs (Play Again, the editor's Play / Stop); saving
+// it on the phone waits for the engine's save data (docs/engine-requests/save-data.md).
+int g_best_score = 0;
+
+// The run flow (milestone 5, docs/run-flow.md): the start screen, a 3-2-1 countdown with
+// everything frozen, play, pause, and the results screen with Play Again.
+enum class Phase { Menu, Countdown, Playing, Paused, Over };
+
+const char* phase_name(Phase phase) {
+    switch (phase) {
+        case Phase::Menu: return "menu";
+        case Phase::Countdown: return "countdown";
+        case Phase::Playing: return "playing";
+        case Phase::Paused: return "paused";
+        case Phase::Over: return "over";
+    }
+    return "menu";
+}
+
+constexpr int64_t kCountdownTicks = 3 * 60;  // 3-2-1, one second each.
+
+// The way of the player's queued premove ("left early" -> "left"; "" = none).
+std::string plan_way(const std::string& plan) {
+    const size_t space = plan.find(' ');
+    return space == std::string::npos ? plan : plan.substr(0, space);
+}
+
+// Coin Rush: the maze (milestone 2), its coins, the level and the score the HUD shows
+// (milestone 3), the hunters (milestone 4, docs/hunters.md) and the run flow (milestone 5,
+// docs/run-flow.md). The session opens on the start screen with everything held. Play (or
+// Play Again) resets the board and the hunters, parks the player on a random central spawn and
+// counts 3-2-1; then each hunter waits at home until its release, scatters to its corner and
+// hunts with its own brain, faster on each level. A touch from one ("Caught!") or the last coin
+// of level 5 ("Cleared!") ends the run: everything stands still and the results show the score
+// and the best.
 class Run : public runtime::Instance {
 public:
     Run(scene::Scene& scene, std::optional<Maze> maze) : maze_(std::move(maze)) {
@@ -55,7 +85,7 @@ public:
             }
             if (robot->player) continue;
             if (std::optional<Hunter> which = hunter_from_name(e.name)) {
-                hunters_.push_back({e.id, *which, e.transform.position});
+                hunters_.push_back({e.id, *which, e.transform.position, robot->start_port});
             }
         }
         if (maze_) {
@@ -64,38 +94,83 @@ public:
                 scene::Entity& coin = scene.add_entity("Coin " + std::to_string(i + 1));
                 coin.transform.position = board_->spots()[i].position;
                 coin.transform.scale = {0.3f, 0.3f, 0.08f};  // 0.6 m across (sphere: 2 m).
-                coin.spin = scene::Spin{};
-                coin.spin->speed = {0.0f, 120.0f, 0.0f};
                 show_coin(coin, board_->level_info());
                 coins_.push_back(coin.id);
             }
             start_hunters();
         }
+        robots::set_held("", true);  // The start screen: nothing moves until Play.
+        spin_coins(scene, true);
         publish();
     }
 
     void tick(scene::Scene& scene, float /*dt*/) override {
-        if (!board_ || player_.empty() || caught_) return;
-        if (check_catch()) {
-            robots::set_held("", true);  // Everything stands still.
+        ++clock_;
+        if (!board_ || player_.empty()) return;
+        if (phase_ == Phase::Countdown) {
+            if (--countdown_ <= 0) go();
             publish();
+            return;
+        }
+        if (phase_ != Phase::Playing) return;
+        if (check_catch()) {
+            end_run(false);
             return;
         }
         const scene::Entity* player = scene.find(player_);
         if (!player) return;
         steer_hunters(scene, player->transform.position);
+        const robots::RailRider* rider = find_component<robots::RailRider>(*player);
+        std::string plan = rider ? plan_way(rider->plan) : "";
+        bool changed = plan != plan_;
+        plan_ = std::move(plan);
         const CoinBoard::Pickup pickup = board_->collect(player->transform.position);
-        if (pickup.taken.empty()) return;
         for (int i : pickup.taken) {
             if (scene::Entity* coin = scene.find(coins_[static_cast<size_t>(i)])) coin->mesh.reset();
+            changed = true;
         }
-        if (pickup.level_cleared && !board_->won()) {  // Every coin back, next colour.
+        if (pickup.level_cleared && board_->won()) {
+            end_run(true);
+            return;
+        }
+        if (pickup.level_cleared) {  // Every coin back, next colour.
             for (const std::string& id : coins_) {
                 if (scene::Entity* coin = scene.find(id)) show_coin(*coin, board_->level_info());
             }
             set_hunter_speed();
         }
-        publish();
+        if (changed) publish();
+    }
+
+    // The UI's buttons: "play" (start screen, results), "pause", "resume", "menu".
+    void ui_request(scene::Scene& scene, const std::string& name,
+                    const std::string& /*json*/) override {
+        if (name == "play" && (phase_ == Phase::Menu || phase_ == Phase::Over ||
+                               phase_ == Phase::Paused)) {
+            new_run(scene);
+        } else if (name == "pause" && phase_ == Phase::Playing) {
+            pause(scene);
+        } else if (name == "resume" && phase_ == Phase::Paused) {
+            resume(scene);
+        } else if (name == "menu" && (phase_ == Phase::Over || phase_ == Phase::Paused)) {
+            phase_ = Phase::Menu;
+            robots::set_held("", true);
+            spin_coins(scene, true);
+            publish();
+        }
+    }
+
+    // Desktop shortcuts: Space / Enter = Play (Again), Escape / P = pause and resume.
+    void key(scene::Scene& scene, const runtime::KeyEvent& event) override {
+        if (event.key == "Space" || event.key == "Return") {
+            if (phase_ == Phase::Menu || phase_ == Phase::Over) new_run(scene);
+        } else if (event.key == "Escape" || event.key == "P") {
+            if (phase_ == Phase::Playing) {
+                pause(scene);
+            } else if (phase_ == Phase::Paused) {
+                resume(scene);
+            }
+        }
     }
 
 private:
@@ -103,17 +178,17 @@ private:
         std::string id;  // Entity id.
         Hunter which;
         glm::vec3 home{0.0f};  // Its home corner (where it starts).
+        int home_port = 0;     // Robot.start_port: parked at home as if arrived by it.
         bool released = false;
     };
     // Where each hunter aims (HunterBot order), read by its driver in the Robots tick.
     using Targets = std::vector<glm::vec3>;
 
-    // Hold every hunter at home and give each its brain as the robot's driver.
+    // Give each hunter its brain as the robot's driver.
     void start_hunters() {
         targets_ = std::make_shared<Targets>();
         for (size_t i = 0; i < hunters_.size(); ++i) {
             targets_->push_back(hunters_[i].home);
-            robots::set_held(hunters_[i].id, true);
             const std::shared_ptr<const Targets> targets = targets_;
             robots::set_driver(hunters_[i].id, [targets, i](const robots::DriveRequest& r) {
                 return choose_swipe(*r.map, r.node, r.entry, (*targets)[i]);
@@ -127,11 +202,99 @@ private:
         for (const HunterBot& h : hunters_) robots::set_top_speed(h.id, speed);
     }
 
+    // Coins turn on the menu, in play and on the results; they stop while paused.
+    void spin_coins(scene::Scene& scene, bool on) {
+        for (const std::string& id : coins_) {
+            scene::Entity* coin = scene.find(id);
+            if (!coin) continue;
+            if (on) {
+                coin->spin = scene::Spin{};
+                coin->spin->speed = {0.0f, 120.0f, 0.0f};
+            } else {
+                coin->spin.reset();
+            }
+        }
+    }
+
+    // Play / Play Again: a fresh board on level 1, score 0, the hunters back home, the player on
+    // a random central spawn, then the countdown. Everything is held until "go".
+    void new_run(scene::Scene& scene) {
+        if (!board_) return;
+        board_.emplace(coin_spots(maze_->graph));
+        for (const std::string& id : coins_) {
+            if (scene::Entity* coin = scene.find(id)) show_coin(*coin, board_->level_info());
+        }
+        spin_coins(scene, true);
+        robots::set_held("", true);
+        for (HunterBot& h : hunters_) {
+            h.released = false;
+            robots::place_robot(h.id, "", h.home_port);
+        }
+        set_hunter_speed();
+        // The spawn's seed: ticks since the session started (how long the player waited on a
+        // screen), so it differs between runs but stays the same for the same inputs.
+        const auto seed = static_cast<uint32_t>(clock_ * 2654435761u) ^ (++runs_ * 40503u);
+        spawn_ = pick_spawn(*maze_, seed);
+        if (!spawn_.empty()) {
+            int ports = 1;
+            for (const rails::Node& n : maze_->graph.nodes) {
+                if (n.id == spawn_) ports = std::max(1, static_cast<int>(n.ports.size()));
+            }
+            robots::place_robot(player_, spawn_, static_cast<int>((seed >> 8) % ports));
+        }
+        ticks_ = 0;
+        caught_ = false;
+        caught_by_.clear();
+        new_best_ = false;
+        plan_.clear();
+        player_forward_ = {0.0f, 0.0f, -1.0f};
+        countdown_ = kCountdownTicks;
+        phase_ = Phase::Countdown;
+        publish();
+    }
+
+    // The countdown is over: the player may drive, the hunters' release clock starts.
+    void go() {
+        phase_ = Phase::Playing;
+        robots::set_held(player_, false);
+        last_contact_ = newest_contact();  // Touches from before the run don't count.
+    }
+
+    void pause(scene::Scene& scene) {
+        phase_ = Phase::Paused;
+        robots::set_held("", true);
+        spin_coins(scene, false);
+        publish();
+    }
+
+    // Back to play: the player and the hunters already out start again (0.5 s launch).
+    void resume(scene::Scene& scene) {
+        phase_ = Phase::Playing;
+        robots::set_held(player_, false);
+        for (const HunterBot& h : hunters_) {
+            if (h.released) robots::set_held(h.id, false);
+        }
+        spin_coins(scene, true);
+        publish();
+    }
+
+    // Caught! or Cleared!: everything stands still, the score stays, the best is updated.
+    void end_run(bool cleared) {
+        phase_ = Phase::Over;
+        robots::set_held("", true);
+        if (cleared) robots::trigger_robot_anim("victory", player_);
+        const int score = board_->score();
+        new_best_ = score > g_best_score;
+        if (new_best_) g_best_score = score;
+        plan_.clear();
+        publish();
+    }
+
     // Releases hunters on time and points each at its target for this tick.
     void steer_hunters(const scene::Scene& scene, const glm::vec3& player) {
         ++ticks_;
         const glm::vec3 step = player - player_pos_;  // The way the player is heading.
-        if (glm::dot(step, step) > 1e-6f) player_forward_ = step;
+        if (glm::dot(step, step) > 1e-6f && glm::dot(step, step) < 4.0f) player_forward_ = step;
         player_pos_ = player;
         glm::vec3 blinky = player;
         for (const HunterBot& h : hunters_) {
@@ -156,6 +319,14 @@ private:
         }
     }
 
+    static int64_t newest_contact() {
+        int64_t newest = -1;
+        for (const robots::ContactEvent& c : robots::contact_log()) {
+            newest = std::max(newest, static_cast<int64_t>(c.tick));
+        }
+        return newest;
+    }
+
     // A hunter touched the player since the last tick (robots' contact log).
     bool check_catch() {
         int64_t newest = last_contact_;
@@ -177,14 +348,19 @@ private:
         const int level = board_ ? board_->level() : 1;
         const int left = board_ ? board_->left() : 0;
         const bool won = board_ && board_->won();
-        runtime::set_ui_model("run", "{\"score\":" + std::to_string(score) +
-                                         ",\"level\":" + std::to_string(level) +
-                                         ",\"coins_left\":" + std::to_string(left) +
-                                         ",\"won\":" + (won ? "true" : "false") +
-                                         ",\"caught\":" + (caught_ ? "true" : "false") +
-                                         ",\"caught_by\":\"" + caught_by_ + "\"" +
-                                         ",\"hunters\":" + std::to_string(hunters_.size()) +
-                                         "}");
+        const int count = phase_ == Phase::Countdown
+                              ? static_cast<int>((countdown_ + 59) / 60)  // 3, 2, 1.
+                              : 0;
+        const auto flag = [](bool b) { return b ? "true" : "false"; };
+        runtime::set_ui_model(
+            "run", "{\"score\":" + std::to_string(score) + ",\"level\":" + std::to_string(level) +
+                       ",\"coins_left\":" + std::to_string(left) + ",\"won\":" + flag(won) +
+                       ",\"caught\":" + flag(caught_) + ",\"caught_by\":\"" + caught_by_ + "\"" +
+                       ",\"hunters\":" + std::to_string(hunters_.size()) + ",\"phase\":\"" +
+                       phase_name(phase_) + "\",\"countdown\":" + std::to_string(count) +
+                       ",\"best\":" + std::to_string(g_best_score) +
+                       ",\"new_best\":" + flag(new_best_) + ",\"plan\":\"" + plan_ + "\"" +
+                       ",\"spawn\":\"" + spawn_ + "\"}");
     }
 
     std::optional<Maze> maze_;
@@ -197,10 +373,17 @@ private:
     glm::vec3 player_forward_{0.0f, 0.0f, -1.0f};  // ...and the way it last moved.
     std::vector<HunterBot> hunters_;  // Blinky, Pinky, Inky, Clyde as found in the scene.
     std::shared_ptr<Targets> targets_;
-    int64_t ticks_ = 0;               // Run ticks so far (the hunters' release clock).
+    Phase phase_ = Phase::Menu;
+    int64_t clock_ = 0;               // Ticks since the session started (the spawn's seed).
+    uint32_t runs_ = 0;               // Runs started in this session.
+    int64_t countdown_ = 0;           // Ticks left in the 3-2-1.
+    int64_t ticks_ = 0;               // Play ticks this run (the hunters' release clock).
     int64_t last_contact_ = -1;       // Newest contact tick looked at.
     bool caught_ = false;
+    bool new_best_ = false;
     std::string caught_by_;           // The hunter that caught the player.
+    std::string plan_;                // The player's queued premove: up / left / right / down.
+    std::string spawn_;               // The node this run started on.
 };
 
 std::unique_ptr<runtime::Instance> start_run(scene::Scene& scene,
