@@ -1,0 +1,12 @@
+{
+  "type": "material",
+  "version": 2,
+  "family": "emissive",
+  "base_color": [
+    1.0,
+    0.42,
+    0.08
+  ],
+  "intensity": 16.0,
+  "hot_core": false
+}

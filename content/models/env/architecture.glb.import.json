@@ -1,0 +1,10 @@
+{
+  "type": "model_import",
+  "version": 1,
+  "materials": {
+    "stone": "materials/env/stone.material.json",
+    "stone_b": "materials/env/stone_b.material.json",
+    "tile": "materials/env/tile.material.json",
+    "trim": "materials/env/trim.material.json"
+  }
+}

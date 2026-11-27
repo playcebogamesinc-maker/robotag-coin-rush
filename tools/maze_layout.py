@@ -35,7 +35,7 @@ LAYOUT = """
 CELL = 3.0          # Metres per character.
 RAIL_Y = 0.3        # Rail height (ground is y = 0).
 WALL_GAP = 2.0      # Walls stop this far from a rail's centre line (junction curves cut 1.2 m in).
-WALL_HEIGHT = 0.6   # Low, so the follow camera sees over them.
+WALL_HEIGHT = 5.6   # Tunnel walls up to the ceiling (tools/environment.py builds the rest).
 BORDER = 1.0        # Thickness of the outer wall.
 # Hunter homes, one per corner (north = -z = top of the layout), like Pac-Man's scatter corners.
 HOMES = {"pinky": (0, 0), "blinky": (-1, 0), "clyde": (0, -1), "inky": (-1, -1)}

@@ -1,0 +1,10 @@
+{
+  "type": "material",
+  "version": 2,
+  "family": "unlit",
+  "base_color": [
+    0.012,
+    0.008,
+    0.005
+  ]
+}

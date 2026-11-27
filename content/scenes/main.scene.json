@@ -13,8 +13,7 @@
         "Mesh": {
           "mesh": "plane",
           "material": "materials/floor.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -25,8 +24,14 @@
           "position": [-6.0, 8.0, 6.0],
           "rotation": [-45.0, -40.0, 0.0]
         },
-        "DirectionalLight": {},
-        "AmbientLight": {}
+        "DirectionalLight": {
+          "color": [1.0, 0.62, 0.32],
+          "intensity": 0.15
+        },
+        "AmbientLight": {
+          "color": [1.0, 0.6, 0.36],
+          "intensity": 0.3
+        }
       }
     },
     {
@@ -76,8 +81,8 @@
       "name": "Wall 01",
       "components": {
         "Transform": {
-          "position": [-18.0, 0.3, -15.0],
-          "scale": [7.0, 0.3, 10.0]
+          "position": [-18.0, 2.8, -15.0],
+          "scale": [7.0, 2.8, 10.0]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -90,8 +95,8 @@
       "name": "Wall 02",
       "components": {
         "Transform": {
-          "position": [0.0, 0.3, -15.0],
-          "scale": [7.0, 0.3, 10.0]
+          "position": [0.0, 2.8, -15.0],
+          "scale": [7.0, 2.8, 10.0]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -104,8 +109,8 @@
       "name": "Wall 03",
       "components": {
         "Transform": {
-          "position": [18.0, 0.3, -15.0],
-          "scale": [7.0, 0.3, 10.0]
+          "position": [18.0, 2.8, -15.0],
+          "scale": [7.0, 2.8, 10.0]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -118,8 +123,8 @@
       "name": "Wall 04",
       "components": {
         "Transform": {
-          "position": [-18.0, 0.3, 3.0],
-          "scale": [7.0, 0.3, 4.0]
+          "position": [-18.0, 2.8, 3.0],
+          "scale": [7.0, 2.8, 4.0]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -132,8 +137,8 @@
       "name": "Wall 05",
       "components": {
         "Transform": {
-          "position": [0.0, 0.3, 12.0],
-          "scale": [7.0, 0.3, 13.0]
+          "position": [0.0, 2.8, 12.0],
+          "scale": [7.0, 2.8, 13.0]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -146,8 +151,8 @@
       "name": "Wall 06",
       "components": {
         "Transform": {
-          "position": [18.0, 0.3, 3.0],
-          "scale": [7.0, 0.3, 4.0]
+          "position": [18.0, 2.8, 3.0],
+          "scale": [7.0, 2.8, 4.0]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -160,8 +165,8 @@
       "name": "Wall 07",
       "components": {
         "Transform": {
-          "position": [-18.0, 0.3, 18.0],
-          "scale": [7.0, 0.3, 7.0]
+          "position": [-18.0, 2.8, 18.0],
+          "scale": [7.0, 2.8, 7.0]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -174,8 +179,8 @@
       "name": "Wall 08",
       "components": {
         "Transform": {
-          "position": [18.0, 0.3, 18.0],
-          "scale": [7.0, 0.3, 7.0]
+          "position": [18.0, 2.8, 18.0],
+          "scale": [7.0, 2.8, 7.0]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -188,8 +193,8 @@
       "name": "Wall 09",
       "components": {
         "Transform": {
-          "position": [0.0, 0.3, -29.5],
-          "scale": [30.0, 0.3, 0.5]
+          "position": [0.0, 2.8, -29.5],
+          "scale": [30.0, 2.8, 0.5]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -202,8 +207,8 @@
       "name": "Wall 10",
       "components": {
         "Transform": {
-          "position": [0.0, 0.3, 29.5],
-          "scale": [30.0, 0.3, 0.5]
+          "position": [0.0, 2.8, 29.5],
+          "scale": [30.0, 2.8, 0.5]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -216,8 +221,8 @@
       "name": "Wall 11",
       "components": {
         "Transform": {
-          "position": [-29.5, 0.3, 0.0],
-          "scale": [0.5, 0.3, 29.0]
+          "position": [-29.5, 2.8, 0.0],
+          "scale": [0.5, 2.8, 29.0]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -230,8 +235,8 @@
       "name": "Wall 12",
       "components": {
         "Transform": {
-          "position": [29.5, 0.3, 0.0],
-          "scale": [0.5, 0.3, 29.0]
+          "position": [29.5, 2.8, 0.0],
+          "scale": [0.5, 2.8, 29.0]
         },
         "Mesh": {
           "material": "materials/wall.material.json"
@@ -460,6 +465,102 @@
           "visor_material": "materials/olly_visor.material.json",
           "eye_material": "materials/olly_eye.material.json",
           "wheel_material": "materials/olly_tyre.material.json"
+        }
+      }
+    },
+    {
+      "id": "e_e9a70001",
+      "name": "Ceiling",
+      "components": {
+        "Transform": {
+          "position": [0.0, 5.6, 0.0],
+          "rotation": [180.0, 0.0, 0.0],
+          "scale": [32.0, 1.0, 32.0]
+        },
+        "Mesh": {
+          "mesh": "plane",
+          "material": "materials/env/ceiling.material.json"
+        },
+        "Static": {
+          "lightmap_scale": 0.25
+        }
+      }
+    },
+    {
+      "id": "e_e9a70002",
+      "name": "Env Architecture",
+      "components": {
+        "Mesh": {
+          "mesh": "models/env/architecture.glb"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_e9a70003",
+      "name": "Env Props",
+      "components": {
+        "Mesh": {
+          "mesh": "models/env/props.glb"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_e9a70004",
+      "name": "Env Flames",
+      "components": {
+        "Mesh": {
+          "mesh": "models/env/flames.glb"
+        },
+        "Static": {
+          "lightmap_scale": 0.05
+        }
+      }
+    },
+    {
+      "id": "e_e9a70005",
+      "name": "Env Trim",
+      "components": {
+        "Mesh": {
+          "mesh": "models/env/trim.glb"
+        },
+        "Static": {}
+      }
+    },
+    {
+      "id": "e_e9a70006",
+      "name": "Env Details",
+      "components": {
+        "Mesh": {
+          "mesh": "models/env/details.glb"
+        }
+      }
+    },
+    {
+      "id": "e_e9a70007",
+      "name": "Env Grout",
+      "components": {
+        "Mesh": {
+          "mesh": "models/env/grout.glb"
+        }
+      }
+    },
+    {
+      "id": "e_e9a7000a",
+      "name": "Atmosphere",
+      "components": {
+        "BakedLighting": {
+          "texels_per_meter": 5.0,
+          "samples": 256
+        },
+        "Look": {
+          "exposure": 1.3,
+          "contrast": 1.12,
+          "saturation": 1.1,
+          "warmth": 0.3,
+          "vignette": 0.45,
+          "bloom": 0.35
         }
       }
     }
