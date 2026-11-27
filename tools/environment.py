@@ -20,11 +20,13 @@ import json, math, os, random, struct, sys
 
 WALL_H = 5.6         # Walls reach the ceiling.
 CEIL_Y = 5.6
+WALL_SKIN = 0.02     # The lit wall faces sit this far in front of the "Wall NN" boxes.
 HALF = 2.0           # Rail centre to wall face.
 STATION = 3.0        # Pillar spacing along a corridor.
 END = 3.0            # First / last pillar this far from a junction node.
 TILE = 1.0           # Floor tile size (rails sit on tile seams).
 SEED = 7
+AMBIENT = 0.12       # Warm fill light everywhere (the scene has no sun).
 
 # Corridor themes, assigned round-robin over a shuffled corridor list (SEED).
 THEMES = ["hall", "gallery", "storage", "glyphs", "steps", "hall", "storage", "glyphs"]
@@ -52,6 +54,8 @@ MATERIALS = {
     "glyph":   {"base_color": [0.2, 0.12, 0.065], "roughness": 0.9, "rim": False},
     "flame":   {"family": "emissive", "base_color": [1.0, 0.42, 0.08], "intensity": 16.0,
                 "hot_core": False},
+    "wall":    {"base_color": [0.36, 0.23, 0.13], "roughness": 0.9, "rim": False,
+                "shadow_tint": [0.45, 0.32, 0.3]},
     "ceiling": {"base_color": [0.16, 0.1, 0.06], "roughness": 1.0, "rim": False},
 }
 # Existing materials restyled (the maze walls and the ground under the tiles = the grout).
@@ -383,6 +387,9 @@ for ci, c in enumerate(corridors):
             else:
                 ext.append(t_end)                     # Wall runs on past the T junction.
         t0, t1 = ext
+        # The lit wall face (the "Wall NN" box behind it is not Static: its tops, ends and
+        # back faces would fill the lightmap without ever being seen from the tunnel).
+        f.wbox(arch, "wall", side, t0, t1, WALL_SKIN, WALL_SKIN, 0, WALL_H, "front")
         f.wbox(trim, "trim", side, t0, t1, 0, 0.1, 0, 0.35, "front top ends")
         f.wbox(trim, "trim", side, t0, t1, 0, 0.07, 1.6, 1.74, "front top bottom ends")
         f.wbox(trim, "trim", side, t0, t1, 0, 0.07, 3.2, 3.34, "front top bottom ends")
@@ -434,18 +441,22 @@ for ci, c in enumerate(corridors):
                 steps(f, side, tb)
             elif r < (0.35 if theme == "gallery" else 0.5):
                 blocks(f, side, tb, rng)
-    # The corridor's floor (lightmapped; the ground plane under the walls is not).
+    # The corridor's floor and ceiling (lightmapped; the ground plane under the walls is not).
+    # The ceiling faces down only, so the top-down menu view still looks into the maze.
     f.box(arch, "tile", HALF, L - HALF, -HALF, HALF, 0.0, 0.003, "top")
+    f.box(arch, "ceiling", HALF, L - HALF, -HALF, HALF, CEIL_Y - 0.003, CEIL_Y, "bottom")
     # Floor cells: the corridor and its junction squares.
     for k in range(int(L / TILE) + 4):
         for o in range(-2, 2):
             p = f.world(-HALF + (k + 0.5) * TILE, (o + 0.5) * TILE)
             cells.add((math.floor(p[0]), math.floor(p[1])))
 
-# Junction squares' floors.
+# Junction squares' floors and ceilings.
 for n in nodes.values():
     x, z = n["position"][0], n["position"][2]
     arch.box("tile", (x - HALF, 0.0, z - HALF), (x + HALF, 0.003, z + HALF), {(0, 1, 0)})
+    arch.box("ceiling", (x - HALF, CEIL_Y - 0.003, z - HALF), (x + HALF, CEIL_Y, z + HALF),
+             {(0, -1, 0)})
 
 # Grout: a thin dark line on every tile edge inside the corridors (the Floor is the tiles).
 G, GY = 0.025, 0.008
@@ -476,7 +487,6 @@ for name, fields in RESTYLE.items():
 # --- scene commands -------------------------------------------------------------------------
 ids = {e["name"]: e["id"] for e in scene["entities"]}
 scene_floor = next(e for e in scene["entities"] if e["name"] == "Floor")
-half = scene_floor["components"]["Transform"]["scale"][0]
 cmds = [{"cmd": "entity.delete", "id": e["id"]} for e in scene["entities"]
         if e["id"].startswith("e_e9a7")]
 for e in scene["entities"]:
@@ -486,6 +496,8 @@ for e in scene["entities"]:
         cmds.append({"cmd": "component.set", "id": e["id"], "component": "Transform",
                      "value": {"position": [p[0], WALL_H / 2, p[2]],
                                "scale": [s[0], WALL_H / 2, s[2]]}})
+        if "Static" in e["components"]:  # Env Architecture holds the lit wall faces.
+            cmds.append({"cmd": "component.remove", "id": e["id"], "component": "Static"})
 
 
 def entity(n, name, comps):
@@ -493,27 +505,23 @@ def entity(n, name, comps):
                  "entity": {"id": f"e_e9a7{n:04x}", "name": name, "components": comps}})
 
 
-entity(1, "Ceiling", {
-    "Transform": {"position": [0.0, CEIL_Y, 0.0], "rotation": [180.0, 0.0, 0.0],
-                  "scale": [half, 1.0, half]},
-    "Mesh": {"mesh": "plane", "material": "materials/env/ceiling.material.json"},
-    "Static": {"lightmap_scale": 0.25}})
 for i, name in enumerate(MESHES):
     comps = {"Transform": {}, "Mesh": {"mesh": f"models/env/{name}.glb"}}
     if name in ("architecture", "props", "flames", "trim"):
         comps["Static"] = {"lightmap_scale": 0.05} if name == "flames" else {}
     entity(2 + i, f"Env {name.capitalize()}", comps)
-# Dark, warm tomb air: almost no sun or sky; the torches light it (in the bake).
+# Dark, warm tomb air: no sun (a dungeon), a dim warm fill; the torches light it (in the bake).
 entity(10, "Atmosphere", {
     "Look": {"exposure": 1.3, "contrast": 1.12, "saturation": 1.1, "warmth": 0.3,
              "vignette": 0.45, "bloom": 0.35},
-    "BakedLighting": {"texels_per_meter": 5, "samples": 256, "bounces": 2}})
-cmds += [
-    {"cmd": "component.set", "id": ids["Sun"], "component": "DirectionalLight",
-     "value": {"color": [1.0, 0.62, 0.32], "intensity": 0.15}},
-    {"cmd": "component.set", "id": ids["Sun"], "component": "AmbientLight",
-     "value": {"color": [1.0, 0.6, 0.36], "intensity": 0.3}},
-]
+    "BakedLighting": {"texels_per_meter": 8, "samples": 256, "bounces": 2}})
+light = next(e for e in scene["entities"] if "AmbientLight" in e["components"])
+cmds.append({"cmd": "component.set", "id": light["id"], "component": "AmbientLight",
+             "value": {"color": [1.0, 0.6, 0.36], "intensity": AMBIENT}})
+if "DirectionalLight" in light["components"]:  # No sun underground (engine: no sun at all).
+    cmds.append({"cmd": "component.remove", "id": light["id"], "component": "DirectionalLight"})
+if light["name"] != "Ambient Light":
+    cmds.append({"cmd": "entity.rename", "id": light["id"], "name": "Ambient Light"})
 if "Static" in scene_floor["components"]:  # The ground under the walls needs no lightmap.
     cmds.append({"cmd": "component.remove", "id": ids["Floor"], "component": "Static"})
 json.dump(cmds, open(os.path.join(out_dir, "scene.json"), "w"), indent=1)
