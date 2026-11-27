@@ -23,6 +23,7 @@ then `build-and-test`, `edit-content`, `rail-layout`, `add-ui-screen`.
 - `code/`: the game's C++ (`rt_add_game(coin_rush ...)`), built with the engine; tests run in
   ctest (`-L game:coin_rush`).
 - `code/core/coins.hpp`: coins along the rails, pickup, levels and score (`docs/coins.md`).
+- `code/core/coin_rush.cpp`: the `Run` system: run flow (menu, countdown, play, pause, results), the `run` UI model and requests (`docs/run-flow.md`).
 - `code/core/hunters.hpp`: the hunters' brains: targets, exit choice, release, scatter / chase,
   speed per level, catches (`docs/hunters.md`).
 - `schemas/coin_rush.schema`: the game's components (`MazeSpot`: hunter homes, player spawns).
@@ -36,7 +37,7 @@ then `build-and-test`, `edit-content`, `rail-layout`, `add-ui-screen`.
 | 2 | The maze: the real rail labyrinth (loops, 12 / 18 / 24 m corridors, corner homes, central spawns) | done: `docs/maze.md`, `tools/maze_layout.py`, `MazeSpot`, `code/core/maze.hpp` (random spawn: `robots::place_robot` exists now, wired with the run flow in M5) |
 | 3 | Coins and score: coins along rails, pickup, 5 levels with doubling value and colours | done: `docs/coins.md`, `code/core/coins.hpp` (`coin_spots`, `CoinBoard`), coin materials; win after level 5 is only a flag until the run flow (M5) |
 | 4 | Hunters: Blinky, Pinky, Inky, Clyde | done: `docs/hunters.md`, brains in `code/core/hunters.hpp`, driven with the engine's `set_driver` / `set_held` / `set_top_speed`, contact group "hunters", a catch ends the run |
-| 5 | Run flow and HUD: start screen, countdown, pause, results, best score, premove arrow (needs engine: game flow, save data) | |
+| 5 | Run flow and HUD: start screen, countdown, pause, results, best score, premove arrow | done: `docs/run-flow.md`, `Run` phases in `code/core/coin_rush.cpp`, screens in `content/ui/` (`hud.tsx`, `screens.tsx`), random spawn with `place_robot`; best score saved across launches waits for engine request #6 (`docs/engine-requests/save-data.md`) |
 | 6 | Hold-to-view map (needs engine: map drawing in UI) | |
 | 7 | Playtest and tune on a phone | |
 
