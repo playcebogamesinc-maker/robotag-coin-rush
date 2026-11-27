@@ -13,6 +13,8 @@ add_library(coin_rush_core STATIC
     core/coins.cpp
     core/hunters.hpp
     core/hunters.cpp
+    core/map.hpp
+    core/map.cpp
 )
 target_include_directories(coin_rush_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})  # "core/..."
 # The game's own components (MazeSpot, ...).

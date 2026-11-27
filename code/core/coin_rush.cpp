@@ -1,6 +1,7 @@
 #include "core/coin_rush.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <memory>
@@ -11,6 +12,7 @@
 
 #include "core/coins.hpp"
 #include "core/hunters.hpp"
+#include "core/map.hpp"
 #include "core/maze.hpp"
 #include "robots/core/robots_module.hpp"
 #include "runtime/session.hpp"
@@ -63,9 +65,27 @@ std::string plan_way(const std::string& plan) {
     return space == std::string::npos ? plan : plan.substr(0, space);
 }
 
+// The wall boxes of the maze (tools/maze_layout.py: "Wall NN" cubes, not rotated), on the
+// ground plane.
+std::vector<MapRect> wall_rects(const scene::Scene& scene) {
+    std::vector<MapRect> walls;
+    for (const scene::Entity& e : scene.entities) {
+        if (e.name.rfind("Wall ", 0) != 0 || !e.mesh || e.mesh->mesh != "cube") continue;
+        const glm::vec3 c = e.transform.position, h = glm::abs(e.transform.scale);
+        walls.push_back({c.x - h.x, c.z - h.z, c.x + h.x, c.z + h.z});
+    }
+    return walls;
+}
+
+std::string number(float v) {
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), "%.2f", static_cast<double>(v));
+    return buf;
+}
+
 // Coin Rush: the maze (milestone 2), its coins, the level and the score the HUD shows
-// (milestone 3), the hunters (milestone 4, docs/hunters.md) and the run flow (milestone 5,
-// docs/run-flow.md). The session opens on the start screen with everything held. Play (or
+// (milestone 3), the hunters (milestone 4, docs/hunters.md), the run flow (milestone 5,
+// docs/run-flow.md) and the hold-to-view map (milestone 6, docs/map.md). The session opens on the start screen with everything held. Play (or
 // Play Again) resets the board and the hunters, parks the player on a random central spawn and
 // counts 3-2-1; then each hunter waits at home until its release, scatters to its corner and
 // hunts with its own brain, faster on each level. A touch from one ("Caught!") or the last coin
@@ -98,6 +118,9 @@ public:
                 coins_.push_back(coin.id);
             }
             start_hunters();
+            map_ = build_map(maze_->graph, wall_rects(scene), board_->spots());
+            runtime::set_ui_model("map", map_layout_json(*map_));
+            publish_coins();
         }
         robots::set_held("", true);  // The start screen: nothing moves until Play.
         spin_coins(scene, true);
@@ -120,6 +143,7 @@ public:
         const scene::Entity* player = scene.find(player_);
         if (!player) return;
         steer_hunters(scene, player->transform.position);
+        if (map_open_ && ticks_ % 2 == 0) publish_map_live(scene);
         const robots::RailRider* rider = find_component<robots::RailRider>(*player);
         std::string plan = rider ? plan_way(rider->plan) : "";
         bool changed = plan != plan_;
@@ -139,10 +163,12 @@ public:
             }
             set_hunter_speed();
         }
+        if (!pickup.taken.empty() || pickup.level_cleared) publish_coins();
         if (changed) publish();
     }
 
-    // The UI's buttons: "play" (start screen, results), "pause", "resume", "menu".
+    // The UI's buttons: "play" (start screen, results), "pause", "resume", "menu", and the map
+    // button held down ("map_open") and let go ("map_close").
     void ui_request(scene::Scene& scene, const std::string& name,
                     const std::string& /*json*/) override {
         if (name == "play" && (phase_ == Phase::Menu || phase_ == Phase::Over ||
@@ -157,6 +183,10 @@ public:
             robots::set_held("", true);
             spin_coins(scene, true);
             publish();
+        } else if (name == "map_open" && phase_ == Phase::Playing) {
+            open_map(scene, true);
+        } else if (name == "map_close") {
+            open_map(scene, false);
         }
     }
 
@@ -216,10 +246,29 @@ private:
         }
     }
 
+    // The hold-to-view map (docs/map.md): while it is open the player's robot takes no input.
+    // A driver that never answers does that: swipes are ignored (a driven robot ignores them),
+    // a premove queued before opening is still taken, and without one the robot stops at the
+    // next intersection, as it would with no swipe. Letting go gives the swipes back.
+    void open_map(scene::Scene& scene, bool open) {
+        if (open == map_open_ || player_.empty()) return;
+        map_open_ = open;
+        if (open) {
+            robots::set_driver(player_, [](const robots::DriveRequest&) {
+                return std::optional<robots::Swipe>{};
+            });
+            publish_map_live(scene);
+        } else {
+            robots::set_driver(player_, {});
+        }
+        publish();
+    }
+
     // Play / Play Again: a fresh board on level 1, score 0, the hunters back home, the player on
     // a random central spawn, then the countdown. Everything is held until "go".
     void new_run(scene::Scene& scene) {
         if (!board_) return;
+        open_map(scene, false);
         board_.emplace(coin_spots(maze_->graph));
         for (const std::string& id : coins_) {
             if (scene::Entity* coin = scene.find(id)) show_coin(*coin, board_->level_info());
@@ -231,6 +280,7 @@ private:
             robots::place_robot(h.id, "", h.home_port);
         }
         set_hunter_speed();
+        publish_coins();
         // The spawn's seed: ticks since the session started (how long the player waited on a
         // screen), so it differs between runs but stays the same for the same inputs.
         const auto seed = static_cast<uint32_t>(clock_ * 2654435761u) ^ (++runs_ * 40503u);
@@ -261,6 +311,7 @@ private:
     }
 
     void pause(scene::Scene& scene) {
+        open_map(scene, false);
         phase_ = Phase::Paused;
         robots::set_held("", true);
         spin_coins(scene, false);
@@ -280,6 +331,10 @@ private:
 
     // Caught! or Cleared!: everything stands still, the score stays, the best is updated.
     void end_run(bool cleared) {
+        if (map_open_) {
+            map_open_ = false;
+            robots::set_driver(player_, {});
+        }
         phase_ = Phase::Over;
         robots::set_held("", true);
         if (cleared) robots::trigger_robot_anim("victory", player_);
@@ -360,11 +415,53 @@ private:
                        phase_name(phase_) + "\",\"countdown\":" + std::to_string(count) +
                        ",\"best\":" + std::to_string(g_best_score) +
                        ",\"new_best\":" + flag(new_best_) + ",\"plan\":\"" + plan_ + "\"" +
-                       ",\"spawn\":\"" + spawn_ + "\"}");
+                       ",\"spawn\":\"" + spawn_ + "\"" +
+                       ",\"map_open\":" + flag(map_open_) + "}");
+    }
+
+    // The map's coins: which spots are still out ("1") or taken ("0"), and the level (colour).
+    void publish_coins() const {
+        if (!board_) return;
+        std::string out;
+        out.reserve(board_->spots().size());
+        for (size_t i = 0; i < board_->spots().size(); ++i) {
+            out += board_->out(static_cast<int>(i)) ? '1' : '0';
+        }
+        runtime::set_ui_model("map_coins", "{\"level\":" + std::to_string(board_->level()) +
+                                               ",\"out\":\"" + out + "\"}");
+    }
+
+    // What moves on the open map: the player (where, heading) and the hunters, in map
+    // coordinates. Sent every other tick while the map is open, never while it is shut.
+    void publish_map_live(const scene::Scene& scene) const {
+        if (!map_) return;
+        const scene::Entity* player = scene.find(player_);
+        if (!player) return;
+        const glm::vec2 at = to_map(*map_, player->transform.position);
+        // The way the robot faces: its local -z turned by its yaw (the maze is flat).
+        const float yaw = glm::radians(player->transform.rotation.y);
+        const glm::vec2 heading(-std::sin(yaw), -std::cos(yaw));
+        std::string out = "{\"x\":" + number(at.x) + ",\"z\":" + number(at.y) +
+                          ",\"hx\":" + number(heading.x) + ",\"hz\":" + number(heading.y) +
+                          ",\"hunters\":[";
+        bool first = true;
+        for (const HunterBot& h : hunters_) {
+            const scene::Entity* e = scene.find(h.id);
+            if (!e) continue;
+            const glm::vec2 p = to_map(*map_, e->transform.position);
+            if (!first) out += ',';
+            first = false;
+            out += "{\"name\":\"" + e->name + "\",\"x\":" + number(p.x) +
+                   ",\"z\":" + number(p.y) + "}";
+        }
+        out += "]}";
+        runtime::set_ui_model("map_live", out);
     }
 
     std::optional<Maze> maze_;
     std::optional<CoinBoard> board_;
+    std::optional<MapLayout> map_;    // The hold-to-view map's drawing (docs/map.md).
+    bool map_open_ = false;           // The map button is held: the player takes no input.
     std::vector<std::string> coins_;  // Coin entity per board spot.
     std::string player_;              // The player robot's entity.
     std::string player_name_;         // ...and its name (contacts name robots).

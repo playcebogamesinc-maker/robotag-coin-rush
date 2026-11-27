@@ -27,6 +27,7 @@ then `build-and-test`, `edit-content`, `rail-layout`, `add-ui-screen`.
 - `code/core/hunters.hpp`: the hunters' brains: targets, exit choice, release, scatter / chase,
   speed per level, catches (`docs/hunters.md`).
 - `schemas/coin_rush.schema`: the game's components (`MazeSpot`: hunter homes, player spawns).
+- `code/core/map.hpp`: the hold-to-view map's drawing (walls, rails, coins as boxes; `docs/map.md`).
 - `tools/maze_layout.py`: the maze layout as ASCII -> rt commands (`docs/maze.md`).
 
 ## Milestones
@@ -38,7 +39,7 @@ then `build-and-test`, `edit-content`, `rail-layout`, `add-ui-screen`.
 | 3 | Coins and score: coins along rails, pickup, 5 levels with doubling value and colours | done: `docs/coins.md`, `code/core/coins.hpp` (`coin_spots`, `CoinBoard`), coin materials; win after level 5 is only a flag until the run flow (M5) |
 | 4 | Hunters: Blinky, Pinky, Inky, Clyde | done: `docs/hunters.md`, brains in `code/core/hunters.hpp`, driven with the engine's `set_driver` / `set_held` / `set_top_speed`, contact group "hunters", a catch ends the run |
 | 5 | Run flow and HUD: start screen, countdown, pause, results, best score, premove arrow | done: `docs/run-flow.md`, `Run` phases in `code/core/coin_rush.cpp`, screens in `content/ui/` (`hud.tsx`, `screens.tsx`), random spawn with `place_robot`; best score saved across launches waits for engine request #6 (`docs/engine-requests/save-data.md`) |
-| 6 | Hold-to-view map (needs engine: map drawing in UI) | |
+| 6 | Hold-to-view map | done: `docs/map.md`, `code/core/map.hpp` (walls, rails, coins as boxes), `content/ui/map.tsx`, MAP button in `hud.tsx`; the player takes no input while it's open (a silent driver); no engine change |
 | 7 | Playtest and tune on a phone | |
 
 ## Checks (from the engine root, `cd ../..`)

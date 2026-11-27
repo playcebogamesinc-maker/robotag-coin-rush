@@ -18,6 +18,7 @@
 #include "all_modules.hpp"
 #include "core/coins.hpp"
 #include "core/hunters.hpp"
+#include "core/map.hpp"
 #include "core/maze.hpp"
 #include "rails/core/rail_bake.hpp"
 #include "document/game.hpp"
@@ -617,6 +618,118 @@ void test_run_flow(const scene::Scene& scene, const std::string& content,
     CHECK(spawns.size() >= 2, "every run started on the same spawn");
 }
 
+// The map's drawing (docs/map.md): walls and rails inside the map, every coin on a rail, the
+// whole maze in it.
+void test_map_layout(const coin_rush::Maze& maze, const scene::Scene& scene) {
+    std::vector<coin_rush::MapRect> walls;
+    for (const scene::Entity& e : scene.entities) {
+        if (e.name.rfind("Wall ", 0) != 0 || !e.mesh) continue;
+        const glm::vec3 c = e.transform.position, h = e.transform.scale;
+        walls.push_back({c.x - h.x, c.z - h.z, c.x + h.x, c.z + h.z});
+    }
+    const std::vector<coin_rush::CoinSpot> spots = coin_rush::coin_spots(maze.graph);
+    const coin_rush::MapLayout map = coin_rush::build_map(maze.graph, walls, spots);
+    CHECK(map.walls.size() == walls.size() && !walls.empty(), "%zu walls", map.walls.size());
+    CHECK(!map.rails.empty() && map.rails.size() < 400, "%zu rail pieces", map.rails.size());
+    CHECK(map.coins.size() == spots.size(), "%zu coins", map.coins.size());
+    CHECK(map.width > 54.0f && map.width < 80.0f && map.depth > 54.0f && map.depth < 80.0f,
+          "map %.1f x %.1f m", map.width, map.depth);
+    const auto inside = [&](const coin_rush::MapRect& r) {
+        return r.x0 >= 0 && r.z0 >= 0 && r.x1 <= map.width && r.z1 <= map.depth;
+    };
+    for (const auto& r : map.walls) CHECK(inside(r), "wall outside the map");
+    for (const auto& r : map.rails) CHECK(inside(r), "rail outside the map");
+    int straight = 0;
+    for (const auto& r : map.rails) straight += r.round ? 0 : 1;
+    CHECK(straight >= static_cast<int>(maze.graph.edges.size()), "%d straight pieces", straight);
+    for (const glm::vec2& c : map.coins) {
+        bool on_rail = false;
+        for (const auto& r : map.rails) {
+            on_rail = on_rail || (c.x >= r.x0 - 0.05f && c.x <= r.x1 + 0.05f &&
+                                  c.y >= r.z0 - 0.05f && c.y <= r.z1 + 0.05f);
+        }
+        CHECK(on_rail, "coin at %.1f, %.1f is off the drawn rails", c.x, c.y);
+    }
+    const std::string json = coin_rush::map_layout_json(map);
+    CHECK(json.find("\"walls\":[[") != std::string::npos && json.size() < 60000,
+          "map model: %zu bytes", json.size());
+}
+
+// Holding the map (docs/map.md): the run says it's open, positions are sent, the player's
+// swipes do nothing while it's open but the robot keeps driving; letting go gives the swipes
+// back; pause shuts it.
+void test_map_hold(const scene::Scene& scene, const std::string& content) {
+    runtime::Session session;
+    session.start(scene, content);
+    std::string run, live, layout, coins;
+    const auto run_for = [&](int ticks) {
+        for (int i = 0; i < ticks; ++i) {
+            session.tick();
+            for (const auto& [name, json] : session.take_ui_models()) {
+                if (name == "run") run = json;
+                if (name == "map_live") live = json;
+                if (name == "map") layout = json;
+                if (name == "map_coins") coins = json;
+            }
+        }
+    };
+    const auto player = [&]() -> glm::vec3 {
+        for (const scene::Entity& e : session.scene().entities) {
+            for (const auto& box : e.module_components) {
+                if (const auto* r = scene::module_component_as<robots::Robot>(*box)) {
+                    if (r->player) return e.transform.position;
+                }
+            }
+        }
+        return glm::vec3(-1000.0f);
+    };
+    const auto swipe_up = [&]() {
+        const float w = 540.0f, h = 1170.0f;
+        session.pointer({runtime::PointerEvent::Type::Down, 270.0f, 700.0f, w, h});
+        session.pointer({runtime::PointerEvent::Type::Move, 270.0f, 550.0f, w, h});
+        session.pointer({runtime::PointerEvent::Type::Up, 270.0f, 400.0f, w, h});
+    };
+    run_for(1);
+    CHECK(!layout.empty(), "no map model");
+    session.ui_request("map_open", "{}");  // On the start screen: ignored.
+    run_for(2);
+    CHECK(field(run, "map_open") == "false", "map opened on the menu: %s", run.c_str());
+
+    session.ui_request("play", "{}");
+    run_for(3 * 60 + 1);
+    CHECK(field(run, "phase") == "playing", "%s", run.c_str());
+    CHECK(field(coins, "out").find('0') == std::string::npos, "coins: %s", coins.c_str());
+    live.clear();
+    session.ui_request("map_open", "{}");
+    run_for(2);
+    CHECK(field(run, "map_open") == "true", "map not open: %s", run.c_str());
+    CHECK(!field(live, "x").empty() && live.find("\"name\":\"Blinky\"") != std::string::npos,
+          "map_live: %s", live.c_str());
+    const glm::vec3 parked = player();
+    swipe_up();
+    run_for(60);
+    CHECK(glm::distance(player(), parked) < 0.01f, "a swipe moved the robot with the map open");
+
+    session.ui_request("map_close", "{}");
+    run_for(2);
+    CHECK(field(run, "map_open") == "false", "map not shut: %s", run.c_str());
+    live.clear();
+    run_for(10);
+    CHECK(live.empty(), "positions sent with the map shut");
+    swipe_up();
+    run_for(20);
+    const glm::vec3 moving = player();
+    CHECK(glm::distance(moving, parked) > 0.5f, "no drive after letting go of the map");
+    session.ui_request("map_open", "{}");
+    run_for(15);
+    CHECK(glm::distance(player(), moving) > 1.0f, "the robot stopped when the map opened");
+    session.ui_request("pause", "{}");
+    run_for(2);
+    CHECK(field(run, "phase") == "paused" && field(run, "map_open") == "false",
+          "pause with the map open: %s", run.c_str());
+    session.stop();
+}
+
 }  // namespace
 
 int main() {
@@ -650,6 +763,8 @@ int main() {
         test_levels(*maze);
         test_drive_picks_up_coins(*scene, project->content);
         test_run_flow(*scene, project->content, *maze);
+        test_map_layout(*maze, *scene);
+        test_map_hold(*scene, project->content);
         test_choose_swipe(*maze);
         test_hunters_catch(*maze);
         std::string start;
