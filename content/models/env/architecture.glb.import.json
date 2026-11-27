@@ -2,9 +2,11 @@
   "type": "model_import",
   "version": 1,
   "materials": {
+    "ceiling": "materials/env/ceiling.material.json",
     "stone": "materials/env/stone.material.json",
     "stone_b": "materials/env/stone_b.material.json",
     "tile": "materials/env/tile.material.json",
-    "trim": "materials/env/trim.material.json"
+    "trim": "materials/env/trim.material.json",
+    "wall": "materials/env/wall.material.json"
   }
 }

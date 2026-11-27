@@ -8,7 +8,9 @@ coins, robots and UI are untouched.
 
 - **Tunnel:** the maze walls ("Wall NN", [maze.md](maze.md)) are 5.6 m tall sandstone and a
   ceiling closes the tunnel at 5.6 m. The ceiling faces down only, so the top-down menu view
-  still looks into the maze.
+  still looks into the maze. The lit wall faces are part of Env Architecture, 2 cm in front of
+  the "Wall NN" boxes (which stay for the map and the menu view, not Static: their tops and
+  backs would only fill the lightmap).
 - **Every corridor:** pillar pairs every ~3 m (base, shaft, capital) with a ceiling beam, heavy
   lintels where it opens into a junction, stone courses along the walls (skirting, two bands,
   cornice), a tiled floor (1 m tiles; the rails sit on tile seams).
@@ -19,7 +21,9 @@ coins, robots and UI are untouched.
   `hall` (torches on both sides, fallen blocks, a gate of heavy pylons in the middle),
   `gallery` (pharaoh guard statues facing each other, gold trim), `storage` (clay pots),
   `glyphs` (hieroglyph wall panels and floor fire bowls), `steps` (stepped blocks, a gate).
-- **Atmosphere:** dim warm ambient, a very dim sun, an `Atmosphere` entity with the `Look`
+- **Atmosphere:** no sun (a dungeon: the scene has no DirectionalLight, so the engine has no
+  sun at all), a dim warm ambient fill (`AMBIENT`; it lights the non-Static details, so keep it
+  low or they glow next to the baked walls), an `Atmosphere` entity with the `Look`
   (warm, a bit brighter, vignette, bloom on the flames) and `BakedLighting` settings.
   Not yet: fog (distant corridors fading to dark) and out-of-step flicker, engine request #10
   ([engine-requests/fog.md](engine-requests/fog.md)).
@@ -34,20 +38,24 @@ follow camera rides about 3.9 m up).
 
 | File / entity | What | Lit by |
 |---|---|---|
-| `models/env/architecture.glb` (Env Architecture) | pillars, beams, lintels, corridor floors | bake (Static) |
+| `models/env/architecture.glb` (Env Architecture) | wall faces, pillars, beams, lintels, corridor floors and ceilings | bake (Static) |
 | `models/env/trim.glb` (Env Trim) | wall courses, gate inlays | bake (Static) |
 | `models/env/props.glb` (Env Props) | blocks, steps, statues, glyph panels | bake (Static) |
 | `models/env/flames.glb` (Env Flames) | torch and fire-bowl flames (emissive) | itself; lights the bake |
 | `models/env/details.glb` (Env Details) | small things: iron, pots, gold, glyph marks | live (ambient + dim sun) |
 | `models/env/grout.glb` (Env Grout) | tile seams | unlit |
 | `materials/env/*.material.json` | one per slot (the `.glb.import.json` maps them) | |
-| Ceiling, Atmosphere, Sun, Floor | scene entities / settings | |
+| Atmosphere, Ambient Light, Floor | scene entities / settings | |
 
 Everything is merged into six meshes: six draws instead of thousands (the renderer has no
 instancing or culling yet), about 45k triangles in all. Only big, simple surfaces are Static,
 because every face of a Static mesh is a lightmap chart, and thousands of tiny charts crowd the
-1024 x 1024 atlas (the phone budget): the bake now lands at about 4 texels per metre. Hidden
+1024 x 1024 atlas (the phone budget): the bake now lands at about 4.4 texels per metre. Hidden
 faces (against walls, floor, ceiling) are left out for the same reason.
+
+Lightmap UVs (UV2): the engine makes them itself for every Static mesh when it bakes (xatlas,
+`engine/bake/lightmap_uvs`), whatever UVs the model file has, so the .glb files carry none.
+To see them: Window > Lighting > Lightmap UVs, or `rt render ... --view lightmap-uvs`.
 
 ## Change it
 
@@ -68,5 +76,6 @@ After a maze change (`tools/maze_layout.py`), run it again.
 ## Seeing it
 
 The torch light lives in the bake. In the editor: **Window > Lighting > Bake** once after
-pulling (the Android build bakes by itself). Without a bake the tunnels show only the dim
-ambient light. The bake is generated data (`.cache/bake/`), never committed.
+pulling (GPU is fine; the Android build bakes by itself). Without a bake the tunnels show only
+the dim ambient light. The Lighting window's "Baked light" view shows the bake on white
+surfaces: there the flames are black and everything else looks flat, which is expected. The bake is generated data (`.cache/bake/`), never committed.

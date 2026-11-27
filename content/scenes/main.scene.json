@@ -18,19 +18,15 @@
     },
     {
       "id": "e_66e1e404",
-      "name": "Sun",
+      "name": "Ambient Light",
       "components": {
         "Transform": {
           "position": [-6.0, 8.0, 6.0],
           "rotation": [-45.0, -40.0, 0.0]
         },
-        "DirectionalLight": {
-          "color": [1.0, 0.62, 0.32],
-          "intensity": 0.15
-        },
         "AmbientLight": {
           "color": [1.0, 0.6, 0.36],
-          "intensity": 0.3
+          "intensity": 0.12
         }
       }
     },
@@ -86,8 +82,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -100,8 +95,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -114,8 +108,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -128,8 +121,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -142,8 +134,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -156,8 +147,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -170,8 +160,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -184,8 +173,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -198,8 +186,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -212,8 +199,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -226,8 +212,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -240,8 +225,7 @@
         },
         "Mesh": {
           "material": "materials/wall.material.json"
-        },
-        "Static": {}
+        }
       }
     },
     {
@@ -469,24 +453,6 @@
       }
     },
     {
-      "id": "e_e9a70001",
-      "name": "Ceiling",
-      "components": {
-        "Transform": {
-          "position": [0.0, 5.6, 0.0],
-          "rotation": [180.0, 0.0, 0.0],
-          "scale": [32.0, 1.0, 32.0]
-        },
-        "Mesh": {
-          "mesh": "plane",
-          "material": "materials/env/ceiling.material.json"
-        },
-        "Static": {
-          "lightmap_scale": 0.25
-        }
-      }
-    },
-    {
       "id": "e_e9a70002",
       "name": "Env Architecture",
       "components": {
@@ -551,7 +517,6 @@
       "name": "Atmosphere",
       "components": {
         "BakedLighting": {
-          "texels_per_meter": 5.0,
           "samples": 256
         },
         "Look": {
