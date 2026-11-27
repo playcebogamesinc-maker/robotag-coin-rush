@@ -1,0 +1,16 @@
+{
+  "type": "material",
+  "version": 2,
+  "base_color": [
+    0.3,
+    0.195,
+    0.12
+  ],
+  "roughness": 0.8,
+  "rim": false,
+  "shadow_tint": [
+    0.45,
+    0.32,
+    0.3
+  ]
+}

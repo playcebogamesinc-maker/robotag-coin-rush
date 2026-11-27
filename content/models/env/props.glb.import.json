@@ -1,0 +1,9 @@
+{
+  "type": "model_import",
+  "version": 1,
+  "materials": {
+    "block": "materials/env/block.material.json",
+    "glyph": "materials/env/glyph.material.json",
+    "statue": "materials/env/statue.material.json"
+  }
+}

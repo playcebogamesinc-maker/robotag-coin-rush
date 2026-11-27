@@ -1,0 +1,12 @@
+{
+  "type": "model_import",
+  "version": 1,
+  "materials": {
+    "block": "materials/env/block.material.json",
+    "clay": "materials/env/clay.material.json",
+    "gold": "materials/env/gold.material.json",
+    "iron": "materials/env/iron.material.json",
+    "statue": "materials/env/statue.material.json",
+    "trim": "materials/env/trim.material.json"
+  }
+}

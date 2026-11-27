@@ -1,0 +1,7 @@
+{
+  "type": "model_import",
+  "version": 1,
+  "materials": {
+    "grout": "materials/env/grout.material.json"
+  }
+}

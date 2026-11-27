@@ -1,0 +1,12 @@
+{
+  "type": "material",
+  "version": 2,
+  "base_color": [
+    0.5,
+    0.32,
+    0.08
+  ],
+  "roughness": 0.35,
+  "rim": false,
+  "specular": true
+}

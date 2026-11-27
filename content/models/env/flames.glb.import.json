@@ -1,0 +1,7 @@
+{
+  "type": "model_import",
+  "version": 1,
+  "materials": {
+    "flame": "materials/env/flame.material.json"
+  }
+}
