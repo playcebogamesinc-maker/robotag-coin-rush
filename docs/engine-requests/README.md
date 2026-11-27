@@ -11,6 +11,6 @@ project; this repo never changes the engine.
 | 4 | Contact rules (hunters pass through each other, a catch is an event, not a bounce) | done (engine #62, Nov 26 2026): `Robot.contact_group`, `Robot.bounce` |
 | 5 | Game flow: pause, restart, scene switching | pause and restart done in game code (milestone 5); still wanted: "app went to the background" so the game can pause ([doc](save-data.md), part B); scene switching not needed yet |
 | 6 | Save data (best score across app launches) | requested Nov 27 2026 ([doc](save-data.md)); until then the best score lasts while the app runs |
-| 7 | Map drawing in the UI (lines / paths, or a top-down view) | needed for milestone 6 |
+| 7 | Map drawing in the UI (lines / paths, or a top-down view) | not needed: milestone 6 draws the map with plain UI boxes ([map.md](../map.md)); rotating UI elements (a heading arrow) would be polish later |
 | 8 | Hub: a GitHub token per repo (engine, each game), falling back to one shared token | wanted by Vlad (Nov 26 2026), not blocking |
 | 9 | Hub's game CI template (`tools/hub/templates/game-build.yml`): build from a short path; a game runner's work folder overflows Windows' 260-character paths (Coin Rush works around it with `subst R:`) | found Nov 26 2026, Coin Rush has the workaround |

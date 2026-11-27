@@ -43,9 +43,10 @@ The UI reads one model, `run` (C++ -> TSX), and sends four requests back.
 | `best`, `new_best` | best score so far; this run beat it |
 | `plan` | the queued premove (`up`, `left`, `right`, `down`, or empty): the HUD arrow |
 | `spawn` | the node this run started on |
+| `map_open` | the map button is held (milestone 6, [map.md](map.md)) |
 
 Requests: `play` (menu, results, pause menu), `pause` (playing), `resume` (paused), `menu`
-(results, pause menu). Anything else, or a request in the wrong phase, is ignored.
+(results, pause menu), `map_open` / `map_close` (the map button, [map.md](map.md)). Anything else, or a request in the wrong phase, is ignored.
 
 ## Not yet
 
