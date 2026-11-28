@@ -1,12 +1,23 @@
 {
   "type": "material",
   "version": 2,
-  "base_color": [
-    0.5,
-    0.32,
-    0.08
+  "outline": 1.2,
+  "outline_color": [
+    0.03,
+    0.017,
+    0.01
   ],
-  "roughness": 0.35,
+  "base_color": [
+    0.85,
+    0.55,
+    0.14
+  ],
+  "roughness": 0.3,
+  "specular": true,
   "rim": false,
-  "specular": true
+  "shadow_tint": [
+    0.5,
+    0.35,
+    0.25
+  ]
 }

@@ -25,8 +25,8 @@
           "rotation": [-45.0, -40.0, 0.0]
         },
         "AmbientLight": {
-          "color": [1.0, 0.6, 0.36],
-          "intensity": 0.12
+          "color": [0.5, 0.6, 0.85],
+          "intensity": 0.1
         }
       }
     },
@@ -478,9 +478,6 @@
       "components": {
         "Mesh": {
           "mesh": "models/env/flames.glb"
-        },
-        "Static": {
-          "lightmap_scale": 0.05
         }
       }
     },
@@ -500,15 +497,9 @@
       "components": {
         "Mesh": {
           "mesh": "models/env/details.glb"
-        }
-      }
-    },
-    {
-      "id": "e_e9a70007",
-      "name": "Env Grout",
-      "components": {
-        "Mesh": {
-          "mesh": "models/env/grout.glb"
+        },
+        "Static": {
+          "lightmap_scale": 0.4
         }
       }
     },
@@ -517,15 +508,2074 @@
       "name": "Atmosphere",
       "components": {
         "BakedLighting": {
-          "samples": 256
+          "max_size": 1400,
+          "ao_strength": 0.7,
+          "ao_distance": 0.8
         },
         "Look": {
-          "exposure": 1.3,
+          "exposure": 0.6,
           "contrast": 1.12,
-          "saturation": 1.1,
-          "warmth": 0.3,
-          "vignette": 0.45,
-          "bloom": 0.35
+          "saturation": 0.95,
+          "vignette": 0.4,
+          "bloom": 0.5,
+          "fog": 1.0,
+          "fog_start": 7.0,
+          "fog_end": 34.0,
+          "fog_color": [0.016, 0.009, 0.005],
+          "fog_from_sky": false
+        }
+      }
+    },
+    {
+      "id": "e_e9a7000b",
+      "name": "Env Lights",
+      "components": {}
+    },
+    {
+      "id": "e_e9a70100",
+      "name": "Torch 001",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-24.0, 3.0, -25.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70101",
+      "name": "Torch 002",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-24.0, 3.0, -28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70102",
+      "name": "Torch 003",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-18.0, 3.0, -25.98]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70103",
+      "name": "Torch 004",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-18.0, 3.0, -28.02]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70104",
+      "name": "Torch 005",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-12.0, 3.0, -25.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70105",
+      "name": "Torch 006",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-12.0, 3.0, -28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70106",
+      "name": "Torch 007",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-28.15, 3.0, -24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70107",
+      "name": "Torch 008",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-25.85, 3.0, -18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70108",
+      "name": "Torch 009",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-28.15, 3.0, -12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70109",
+      "name": "Torch 010",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-25.85, 3.0, -6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7010a",
+      "name": "Fire Bowl 011",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-25.45, 1.2, -22.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a7010b",
+      "name": "Fire Bowl 012",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-28.55, 1.2, -19.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a7010c",
+      "name": "Fire Bowl 013",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-25.45, 1.2, -16.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a7010d",
+      "name": "Fire Bowl 014",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-28.55, 1.2, -13.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a7010e",
+      "name": "Fire Bowl 015",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-25.45, 1.2, -10.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a7010f",
+      "name": "Fire Bowl 016",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-28.55, 1.2, -7.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70110",
+      "name": "Torch 017",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-6.0, 3.0, -25.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70111",
+      "name": "Torch 018",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [0.0, 3.0, -28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70112",
+      "name": "Torch 019",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [6.0, 3.0, -25.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70113",
+      "name": "Torch 020",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-10.15, 3.0, -24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70114",
+      "name": "Torch 021",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-7.85, 3.0, -24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70115",
+      "name": "Torch 022",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-10.15, 3.0, -18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70116",
+      "name": "Torch 023",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-7.85, 3.0, -18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70117",
+      "name": "Torch 024",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-10.02, 3.0, -15.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70118",
+      "name": "Torch 025",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-7.98, 3.0, -15.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70119",
+      "name": "Torch 026",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-10.15, 3.0, -12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7011a",
+      "name": "Torch 027",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-7.85, 3.0, -12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7011b",
+      "name": "Torch 028",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-10.15, 3.0, -6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7011c",
+      "name": "Torch 029",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-7.85, 3.0, -6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7011d",
+      "name": "Torch 030",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [12.0, 3.0, -25.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7011e",
+      "name": "Torch 031",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [12.0, 3.0, -28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7011f",
+      "name": "Torch 032",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [18.0, 3.0, -25.98]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70120",
+      "name": "Torch 033",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [18.0, 3.0, -28.02]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70121",
+      "name": "Torch 034",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [24.0, 3.0, -25.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70122",
+      "name": "Torch 035",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [24.0, 3.0, -28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70123",
+      "name": "Torch 036",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [7.85, 3.0, -24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70124",
+      "name": "Torch 037",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [10.15, 3.0, -24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70125",
+      "name": "Torch 038",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [7.85, 3.0, -18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70126",
+      "name": "Torch 039",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [10.15, 3.0, -18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70127",
+      "name": "Torch 040",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [7.98, 3.0, -15.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70128",
+      "name": "Torch 041",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [10.02, 3.0, -15.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70129",
+      "name": "Torch 042",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [7.85, 3.0, -12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7012a",
+      "name": "Torch 043",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [10.15, 3.0, -12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7012b",
+      "name": "Torch 044",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [7.85, 3.0, -6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7012c",
+      "name": "Torch 045",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [10.15, 3.0, -6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7012d",
+      "name": "Torch 046",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [25.85, 3.0, -24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7012e",
+      "name": "Torch 047",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [28.15, 3.0, -24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7012f",
+      "name": "Torch 048",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [25.85, 3.0, -18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70130",
+      "name": "Torch 049",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [28.15, 3.0, -18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70131",
+      "name": "Torch 050",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [25.98, 3.0, -15.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70132",
+      "name": "Torch 051",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [28.02, 3.0, -15.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70133",
+      "name": "Torch 052",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [25.85, 3.0, -12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70134",
+      "name": "Torch 053",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [28.15, 3.0, -12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70135",
+      "name": "Torch 054",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [25.85, 3.0, -6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70136",
+      "name": "Torch 055",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [28.15, 3.0, -6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70137",
+      "name": "Torch 056",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-24.0, 3.0, -1.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70138",
+      "name": "Torch 057",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-18.0, 3.0, -1.98]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70139",
+      "name": "Torch 058",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-18.0, 3.0, -4.02]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7013a",
+      "name": "Torch 059",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-12.0, 3.0, -1.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7013b",
+      "name": "Torch 060",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-28.15, 3.0, 0.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7013c",
+      "name": "Torch 061",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-25.85, 3.0, 6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7013d",
+      "name": "Torch 062",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-6.0, 3.0, -1.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7013e",
+      "name": "Torch 063",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [0.0, 3.0, -4.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7013f",
+      "name": "Torch 064",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [6.0, 3.0, -1.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70140",
+      "name": "Torch 065",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-10.15, 3.0, 0.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70141",
+      "name": "Torch 066",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-7.85, 3.0, 6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70142",
+      "name": "Torch 067",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [12.0, 3.0, -1.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70143",
+      "name": "Torch 068",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [18.0, 3.0, -4.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70144",
+      "name": "Torch 069",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [24.0, 3.0, -1.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70145",
+      "name": "Fire Bowl 070",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [13.5, 1.2, -4.55]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70146",
+      "name": "Fire Bowl 071",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [16.5, 1.2, -1.45]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70147",
+      "name": "Fire Bowl 072",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [19.5, 1.2, -4.55]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70148",
+      "name": "Fire Bowl 073",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [22.5, 1.2, -1.45]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70149",
+      "name": "Torch 074",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [7.85, 3.0, 0.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7014a",
+      "name": "Torch 075",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [10.15, 3.0, 6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7014b",
+      "name": "Torch 076",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [25.85, 3.0, 0.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7014c",
+      "name": "Torch 077",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [28.15, 3.0, 6.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7014d",
+      "name": "Torch 078",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-24.0, 3.0, 10.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7014e",
+      "name": "Torch 079",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-24.0, 3.0, 7.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7014f",
+      "name": "Torch 080",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-18.0, 3.0, 10.02]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70150",
+      "name": "Torch 081",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-18.0, 3.0, 7.98]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70151",
+      "name": "Torch 082",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-12.0, 3.0, 10.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70152",
+      "name": "Torch 083",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-12.0, 3.0, 7.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70153",
+      "name": "Torch 084",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-28.15, 3.0, 12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70154",
+      "name": "Torch 085",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-25.85, 3.0, 18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70155",
+      "name": "Torch 086",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-28.15, 3.0, 24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70156",
+      "name": "Fire Bowl 087",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-25.45, 1.2, 13.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70157",
+      "name": "Fire Bowl 088",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-28.55, 1.2, 16.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70158",
+      "name": "Fire Bowl 089",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-25.45, 1.2, 19.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70159",
+      "name": "Fire Bowl 090",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-28.55, 1.2, 22.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a7015a",
+      "name": "Torch 091",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-10.15, 3.0, 12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7015b",
+      "name": "Torch 092",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-7.85, 3.0, 18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7015c",
+      "name": "Torch 093",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-10.15, 3.0, 24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7015d",
+      "name": "Fire Bowl 094",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-7.45, 1.2, 13.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a7015e",
+      "name": "Fire Bowl 095",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-10.55, 1.2, 16.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a7015f",
+      "name": "Fire Bowl 096",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-7.45, 1.2, 19.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70160",
+      "name": "Fire Bowl 097",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-10.55, 1.2, 22.5]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70161",
+      "name": "Torch 098",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [12.0, 3.0, 10.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70162",
+      "name": "Torch 099",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [12.0, 3.0, 7.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70163",
+      "name": "Torch 100",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [18.0, 3.0, 10.02]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70164",
+      "name": "Torch 101",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [18.0, 3.0, 7.98]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70165",
+      "name": "Torch 102",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [24.0, 3.0, 10.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70166",
+      "name": "Torch 103",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [24.0, 3.0, 7.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70167",
+      "name": "Torch 104",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [7.85, 3.0, 12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70168",
+      "name": "Torch 105",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [10.15, 3.0, 12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70169",
+      "name": "Torch 106",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [7.98, 3.0, 18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7016a",
+      "name": "Torch 107",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [10.02, 3.0, 18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7016b",
+      "name": "Torch 108",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [7.85, 3.0, 24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7016c",
+      "name": "Torch 109",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [10.15, 3.0, 24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7016d",
+      "name": "Torch 110",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [25.85, 3.0, 12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7016e",
+      "name": "Torch 111",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [28.15, 3.0, 12.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7016f",
+      "name": "Torch 112",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [25.98, 3.0, 18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70170",
+      "name": "Torch 113",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [28.02, 3.0, 18.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70171",
+      "name": "Torch 114",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [25.85, 3.0, 24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70172",
+      "name": "Torch 115",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [28.15, 3.0, 24.0]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70173",
+      "name": "Torch 116",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-24.0, 3.0, 28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70174",
+      "name": "Torch 117",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-18.0, 3.0, 25.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70175",
+      "name": "Torch 118",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-12.0, 3.0, 28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a70176",
+      "name": "Fire Bowl 119",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-22.5, 1.2, 25.45]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70177",
+      "name": "Fire Bowl 120",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-19.5, 1.2, 28.55]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70178",
+      "name": "Fire Bowl 121",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-16.5, 1.2, 25.45]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a70179",
+      "name": "Fire Bowl 122",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-13.5, 1.2, 28.55]
+        },
+        "PointLight": {
+          "color": [1.0, 0.48, 0.16],
+          "intensity": 1.0,
+          "range": 7.0,
+          "radius": 0.3
+        }
+      }
+    },
+    {
+      "id": "e_e9a7017a",
+      "name": "Torch 123",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [-6.0, 3.0, 28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7017b",
+      "name": "Torch 124",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [0.0, 3.0, 25.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7017c",
+      "name": "Torch 125",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [6.0, 3.0, 28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7017d",
+      "name": "Torch 126",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [12.0, 3.0, 28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7017e",
+      "name": "Torch 127",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [18.0, 3.0, 25.85]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
+        }
+      }
+    },
+    {
+      "id": "e_e9a7017f",
+      "name": "Torch 128",
+      "parent": "e_e9a7000b",
+      "components": {
+        "Transform": {
+          "position": [24.0, 3.0, 28.15]
+        },
+        "PointLight": {
+          "color": [1.0, 0.52, 0.2],
+          "intensity": 1.6,
+          "range": 7.5,
+          "radius": 0.2
         }
       }
     }

@@ -26,44 +26,52 @@ STATION = 3.0        # Pillar spacing along a corridor.
 END = 3.0            # First / last pillar this far from a junction node.
 TILE = 1.0           # Floor tile size (rails sit on tile seams).
 SEED = 7
-AMBIENT = 0.12       # Warm fill light everywhere (the scene has no sun).
+AMBIENT = 0.1        # Cool dim fill everywhere (the scene has no sun); the torches are warm.
+AMBIENT_COLOR = [0.5, 0.6, 0.85]
 
 # Corridor themes, assigned round-robin over a shuffled corridor list (SEED).
 THEMES = ["hall", "gallery", "storage", "glyphs", "steps", "hall", "storage", "glyphs"]
 
 # Material slot -> material file (content/materials/env/); the files are made by the tool too.
+# Stone is textured (tools/textures.py, 2 m per image: tiling 0.5): triplanar on walls and
+# props, projected from above on the floor. base_color tints the image.
+SAND = {"base_map": "textures/env/sandstone.png", "normal_map": "textures/env/sandstone_n.png",
+        "mapping": "triplanar", "tiling": [0.5, 0.5], "roughness": 0.9, "rim": False,
+        "shadow_tint": [0.42, 0.3, 0.3], "band_softness": 0.25}
+OUTLINE = {"outline": 1.2, "outline_color": [0.03, 0.017, 0.01]}
 MATERIALS = {
-    "stone":   {"base_color": [0.34, 0.21, 0.12], "roughness": 0.9, "rim": False,
-                "shadow_tint": [0.45, 0.32, 0.3]},
-    "stone_b": {"base_color": [0.29, 0.18, 0.105], "roughness": 0.9, "rim": False,
-                "shadow_tint": [0.45, 0.32, 0.3]},
-    "trim":    {"base_color": [0.44, 0.3, 0.18], "roughness": 0.9, "rim": False,
-                "shadow_tint": [0.45, 0.32, 0.3]},
-    "tile":    {"base_color": [0.3, 0.195, 0.12], "roughness": 0.8, "rim": False,
-                "shadow_tint": [0.45, 0.32, 0.3]},
-    "grout":   {"family": "unlit", "base_color": [0.012, 0.008, 0.005]},
-    "block":   {"base_color": [0.38, 0.25, 0.15], "roughness": 0.9, "rim": False,
-                "shadow_tint": [0.45, 0.32, 0.3]},
-    "clay":    {"base_color": [0.42, 0.18, 0.08], "roughness": 0.7, "rim": False,
-                "shadow_tint": [0.45, 0.3, 0.3]},
-    "iron":    {"base_color": [0.06, 0.05, 0.045], "roughness": 0.5, "rim": False},
-    "statue":  {"base_color": [0.5, 0.37, 0.23], "roughness": 0.8, "rim": False,
-                "shadow_tint": [0.45, 0.32, 0.3]},
-    "gold":    {"base_color": [0.5, 0.32, 0.08], "roughness": 0.35, "rim": False,
-                "specular": True},
-    "glyph":   {"base_color": [0.2, 0.12, 0.065], "roughness": 0.9, "rim": False},
-    "flame":   {"family": "emissive", "base_color": [1.0, 0.42, 0.08], "intensity": 16.0,
+    "wall":    {**SAND, "base_color": [0.82, 0.74, 0.66]},
+    "stone":   {**SAND, "base_color": [0.9, 0.8, 0.7], "tiling": [0.7, 0.7]},
+    "stone_b": {**SAND, "base_color": [0.74, 0.64, 0.56], "tiling": [0.7, 0.7]},
+    "trim":    {**SAND, "base_color": [1.0, 0.9, 0.78], "tiling": [1.0, 1.0]},
+    "block":   {**SAND, **OUTLINE, "base_color": [0.86, 0.76, 0.66], "tiling": [0.8, 0.8]},
+    "ceiling": {**SAND, "base_color": [0.4, 0.34, 0.3]},
+    "tile":    {**SAND, "base_map": "textures/env/slabs.png",
+                "normal_map": "textures/env/slabs_n.png", "mapping": "world",
+                "base_color": [0.85, 0.76, 0.68]},
+    "glyph":   {**SAND, "base_map": "textures/env/glyphs.png",
+                "normal_map": "textures/env/glyphs_n.png", "base_color": [0.9, 0.78, 0.66]},
+    "statue":  {**SAND, **OUTLINE, "base_color": [1.0, 0.86, 0.7], "tiling": [1.6, 1.6]},
+    "clay":    {**OUTLINE, "base_color": [0.42, 0.17, 0.07], "roughness": 0.7, "rim": False,
+                "specular": True, "shadow_tint": [0.45, 0.3, 0.3]},
+    # Toon with a highlight, not lit metal: metal reflects the sky, and a tomb has none.
+    "iron":    {"base_color": [0.07, 0.055, 0.045], "roughness": 0.4, "specular": True,
+                "rim": False},
+    "gold":    {**OUTLINE, "base_color": [0.85, 0.55, 0.14], "roughness": 0.3,
+                "specular": True, "rim": False, "shadow_tint": [0.5, 0.35, 0.25]},
+    "flame":   {"family": "emissive", "base_color": [1.0, 0.45, 0.1], "intensity": 3.0,
                 "hot_core": False},
-    "wall":    {"base_color": [0.36, 0.23, 0.13], "roughness": 0.9, "rim": False,
-                "shadow_tint": [0.45, 0.32, 0.3]},
-    "ceiling": {"base_color": [0.16, 0.1, 0.06], "roughness": 1.0, "rim": False},
 }
-# Existing materials restyled (the maze walls and the ground under the tiles = the grout).
+# Existing materials restyled (the maze wall boxes seen from above in the menu, the ground).
 RESTYLE = {
-    "wall":  {"base_color": [0.36, 0.23, 0.13], "roughness": 0.9, "rim": False,
-              "shadow_tint": [0.45, 0.32, 0.3]},
+    "wall":  {**SAND, "base_color": [0.6, 0.52, 0.45]},
     "floor": {"base_color": [0.06, 0.04, 0.03], "roughness": 0.9, "rim": False},
 }
+# Torch / fire-bowl light (baked PointLights at every flame).
+TORCH_LIGHT = {"color": [1.0, 0.52, 0.2], "intensity": 1.6, "range": 7.5, "radius": 0.2}
+BOWL_LIGHT = {"color": [1.0, 0.48, 0.16], "intensity": 1.0, "range": 7.0, "radius": 0.3}
+FOG = {"fog": 1.0, "fog_start": 7.0, "fog_end": 34.0, "fog_color": [0.016, 0.009, 0.005],
+       "fog_from_sky": False}
 
 
 class Mesh:
@@ -239,12 +247,12 @@ for k, i in enumerate(order):
     corridors[i]["theme"] = THEMES[k % len(THEMES)]
 
 
-# Static meshes are lit by the bake (torch light): only big, simple surfaces, because every
-# face is a lightmap chart. Small details are lit live (ambient + the dim sun) and never get
-# a lightmap; the grout lines are unlit.
-arch, props, flames = Mesh(), Mesh(), Mesh()            # Static.
-details, grout = Mesh(), Mesh()                         # Live.
-trim = Mesh()                                           # Static.
+# Every mesh but the flames is Static, lit by the bake (the torch lamps). Every face is a
+# lightmap chart, so the small details get a lower lightmap density (DETAIL_SCALE).
+arch, props, trim, details = Mesh(), Mesh(), Mesh(), Mesh()     # Static.
+flames = Mesh()                                                 # Emissive, live.
+lamps = []                                                      # (name, position, PointLight)
+DETAIL_SCALE = 0.4
 
 class Frame:
     """Corridor-local coordinates: t along the rail from its first node, o across (+-HALF =
@@ -292,6 +300,7 @@ def torch(f, side, t, w):
     x, z = f.at(side, t, w + 0.26)
     details.lathe("iron", x, z, 2.56, [(0.07, 0), (0.12, 0.08), (0.19, 0.24)], 8)
     flames.lathe("flame", x, z, 2.74, [(0.14, 0), (0.15, 0.12), (0.0, 0.55)], 5)
+    lamps.append(("Torch", (x, 3.0, z), TORCH_LIGHT))
 
 
 def brazier(f, side, t):
@@ -301,6 +310,7 @@ def brazier(f, side, t):
     x, z = f.at(side, t, 0.45)
     details.lathe("iron", x, z, 0.6, [(0.12, 0), (0.24, 0.1), (0.3, 0.24)], 8)
     flames.lathe("flame", x, z, 0.78, [(0.23, 0), (0.25, 0.15), (0.0, 0.75)], 5)
+    lamps.append(("Fire Bowl", (x, 1.2, z), BOWL_LIGHT))
 
 
 def blocks(f, side, t, rng):
@@ -347,18 +357,10 @@ def statue(f, side, t):
 
 
 def glyph_panel(f, side, t, rng):
-    f.wbox(props, "glyph", side, t - 0.85, t + 0.85, 0, 0.035, 0.85, 3.15, "front")
-    for col in range(4):
-        tc = t - 0.6 + col * 0.4
-        if col < 3:
-            f.wbox(details, "trim", side, tc + 0.19, tc + 0.21, 0, 0.05, 0.95, 3.05, "front ends")
-        for row in range(7):
-            if rng.random() < 0.2:
-                continue
-            yc = 1.08 + row * 0.29
-            a, h = rng.uniform(0.04, 0.12), rng.uniform(0.04, 0.1)
-            f.wbox(details, "trim", side, tc - a, tc + a, 0.03, rng.uniform(0.06, 0.08),
-                   yc - h, yc + h, "front ends top bottom")
+    """A carved panel (the glyph texture) in a stone frame."""
+    f.wbox(props, "glyph", side, t - 0.85, t + 0.85, 0, 0.09, 0.85, 3.15, "front ends")
+    f.wbox(props, "trim", side, t - 0.95, t + 0.95, 0, 0.13, 3.15, 3.3, "front ends top bottom")
+    f.wbox(props, "trim", side, t - 0.95, t + 0.95, 0, 0.13, 0.7, 0.85, "front ends top")
 
 
 def steps(f, side, t):
@@ -367,8 +369,6 @@ def steps(f, side, t):
 
 
 # --- build ----------------------------------------------------------------------------------
-cells = set()
-lights = 0
 for ci, c in enumerate(corridors):
     f = Frame(c)
     L, theme = c["L"], c["theme"]
@@ -422,7 +422,6 @@ for ci, c in enumerate(corridors):
             both = theme in ("hall", "gallery") or heavy
             for side in ((1, -1) if both else ((1,) if k % 4 == 0 else (-1,))):
                 torch(f, side, t, wf + 0.14 if not heavy else wf)
-                lights += 1
     # Bays between pillars: the theme's props.
     for k in range(n - 1):
         tb = (ts[k] + ts[k + 1]) / 2
@@ -434,7 +433,6 @@ for ci, c in enumerate(corridors):
                 glyph_panel(f, side, tb, rng)
                 if (k + (side > 0)) % 2 == 0:
                     brazier(f, side, tb)
-                    lights += 1
             elif theme == "storage" and r < 0.55:
                 pots(f, side, tb, rng)
             elif theme == "steps" and r < 0.5:
@@ -445,11 +443,6 @@ for ci, c in enumerate(corridors):
     # The ceiling faces down only, so the top-down menu view still looks into the maze.
     f.box(arch, "tile", HALF, L - HALF, -HALF, HALF, 0.0, 0.003, "top")
     f.box(arch, "ceiling", HALF, L - HALF, -HALF, HALF, CEIL_Y - 0.003, CEIL_Y, "bottom")
-    # Floor cells: the corridor and its junction squares.
-    for k in range(int(L / TILE) + 4):
-        for o in range(-2, 2):
-            p = f.world(-HALF + (k + 0.5) * TILE, (o + 0.5) * TILE)
-            cells.add((math.floor(p[0]), math.floor(p[1])))
 
 # Junction squares' floors and ceilings.
 for n in nodes.values():
@@ -458,18 +451,16 @@ for n in nodes.values():
     arch.box("ceiling", (x - HALF, CEIL_Y - 0.003, z - HALF), (x + HALF, CEIL_Y, z + HALF),
              {(0, -1, 0)})
 
-# Grout: a thin dark line on every tile edge inside the corridors (the Floor is the tiles).
-G, GY = 0.025, 0.008
-for (x, z) in sorted(cells):
-    grout.quad("grout", (x - G, GY, z), (0, 0, 1), (2 * G, 0, 0))
-    grout.quad("grout", (x, GY, z - G), (0, 0, 2 * G), (1, 0, 0))
-
-
 models = os.path.join(content, "models/env")
 os.makedirs(models, exist_ok=True)
 os.makedirs(os.path.join(content, "materials/env"), exist_ok=True)
 MESHES = {"architecture": arch, "props": props, "flames": flames, "trim": trim,
-          "details": details, "grout": grout}
+          "details": details}
+for old in ("grout.glb", "grout.glb.import.json"):     # Made by an earlier version.
+    if os.path.exists(os.path.join(models, old)):
+        os.remove(os.path.join(models, old))
+if os.path.exists(os.path.join(content, "materials/env/grout.material.json")):
+    os.remove(os.path.join(content, "materials/env/grout.material.json"))
 for name, mesh in MESHES.items():
     write_glb(os.path.join(models, name + ".glb"), mesh)
     imp = {"type": "model_import", "version": 1,
@@ -487,8 +478,9 @@ for name, fields in RESTYLE.items():
 # --- scene commands -------------------------------------------------------------------------
 ids = {e["name"]: e["id"] for e in scene["entities"]}
 scene_floor = next(e for e in scene["entities"] if e["name"] == "Floor")
+# Deleting a group deletes its children too.
 cmds = [{"cmd": "entity.delete", "id": e["id"]} for e in scene["entities"]
-        if e["id"].startswith("e_e9a7")]
+        if e["id"].startswith("e_e9a7") and not e.get("parent", "").startswith("e_e9a7")]
 for e in scene["entities"]:
     if e["name"].startswith("Wall "):
         p = e["components"]["Transform"]["position"]
@@ -507,17 +499,26 @@ def entity(n, name, comps):
 
 for i, name in enumerate(MESHES):
     comps = {"Transform": {}, "Mesh": {"mesh": f"models/env/{name}.glb"}}
-    if name in ("architecture", "props", "flames", "trim"):
-        comps["Static"] = {"lightmap_scale": 0.05} if name == "flames" else {}
+    if name != "flames":
+        comps["Static"] = {"lightmap_scale": DETAIL_SCALE} if name == "details" else {}
     entity(2 + i, f"Env {name.capitalize()}", comps)
-# Dark, warm tomb air: no sun (a dungeon), a dim warm fill; the torches light it (in the bake).
+# Dark, warm tomb air: no sun (a dungeon), a dim warm fill, fog swallowing the far end of each
+# corridor; the torch lamps light it (in the bake).
 entity(10, "Atmosphere", {
-    "Look": {"exposure": 1.3, "contrast": 1.12, "saturation": 1.1, "warmth": 0.3,
-             "vignette": 0.45, "bloom": 0.35},
-    "BakedLighting": {"texels_per_meter": 8, "samples": 256, "bounces": 2}})
+    "Look": {"exposure": 0.6, "contrast": 1.12, "saturation": 0.95, "warmth": 0.0,
+             "vignette": 0.4, "bloom": 0.5, **FOG},
+    "BakedLighting": {"texels_per_meter": 8, "max_size": 1400, "samples": 128, "bounces": 2, "sun_samples": 16,
+                      "denoise": True, "ao_strength": 0.7, "ao_distance": 0.8}})
+# The lamps, grouped under "Env Lights" (the Lighting window lists them).
+entity(11, "Env Lights", {"Transform": {}})
+for k, (name, p, light) in enumerate(lamps):
+    cmds.append({"cmd": "entity.create", "entity": {
+        "id": f"e_e9a7{0x100 + k:04x}", "name": f"{name} {k + 1:03d}", "parent": "e_e9a7000b",
+        "components": {"Transform": {"position": [round(v, 3) for v in p]},
+                       "PointLight": dict(light)}}})
 light = next(e for e in scene["entities"] if "AmbientLight" in e["components"])
 cmds.append({"cmd": "component.set", "id": light["id"], "component": "AmbientLight",
-             "value": {"color": [1.0, 0.6, 0.36], "intensity": AMBIENT}})
+             "value": {"color": AMBIENT_COLOR, "intensity": AMBIENT}})
 if "DirectionalLight" in light["components"]:  # No sun underground (engine: no sun at all).
     cmds.append({"cmd": "component.remove", "id": light["id"], "component": "DirectionalLight"})
 if light["name"] != "Ambient Light":
@@ -525,5 +526,5 @@ if light["name"] != "Ambient Light":
 if "Static" in scene_floor["components"]:  # The ground under the walls needs no lightmap.
     cmds.append({"cmd": "component.remove", "id": ids["Floor"], "component": "Static"})
 json.dump(cmds, open(os.path.join(out_dir, "scene.json"), "w"), indent=1)
-print(f"{len(corridors)} corridors, {len(cells)} floor cells, {lights} fires, "
+print(f"{len(corridors)} corridors, {len(lamps)} lamps, "
       f"themes {sorted((c['theme'] for c in corridors))}")
