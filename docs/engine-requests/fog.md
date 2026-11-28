@@ -1,5 +1,10 @@
 # Engine request #10: distance fog (and torch flicker) for Coin Rush's tunnels
 
+**Status (Nov 28 2026):** A (fog) is done in the engine (M20 step 6, `Look.fog`, `fog_start`,
+`fog_end`, `fog_color`, height fog) and Coin Rush uses it. B (flicker) is still open: the
+torch light is baked `PointLight`s now, so flicker would mean a live light term or a per-object
+emissive phase.
+
 Paste this into the Robotag: Game Engine project. Small: three fields on `Look` and one line in
 the shared colour finish. Coin Rush's level look (Egyptian pyramid tunnels, `docs/environment.md`)
 is done in the game repo; this is the one thing it can't do itself.

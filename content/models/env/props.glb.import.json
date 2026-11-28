@@ -4,6 +4,7 @@
   "materials": {
     "block": "materials/env/block.material.json",
     "glyph": "materials/env/glyph.material.json",
-    "statue": "materials/env/statue.material.json"
+    "statue": "materials/env/statue.material.json",
+    "trim": "materials/env/trim.material.json"
   }
 }

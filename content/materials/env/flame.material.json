@@ -4,9 +4,9 @@
   "family": "emissive",
   "base_color": [
     1.0,
-    0.42,
-    0.08
+    0.45,
+    0.1
   ],
-  "intensity": 16.0,
+  "intensity": 3.0,
   "hot_core": false
 }

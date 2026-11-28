@@ -1,16 +1,24 @@
 {
   "type": "material",
   "version": 2,
-  "base_color": [
-    0.36,
-    0.23,
-    0.13
+  "base_map": "textures/env/sandstone.png",
+  "normal_map": "textures/env/sandstone_n.png",
+  "mapping": "triplanar",
+  "tiling": [
+    0.5,
+    0.5
   ],
   "roughness": 0.9,
   "rim": false,
   "shadow_tint": [
-    0.45,
-    0.32,
+    0.42,
+    0.3,
     0.3
+  ],
+  "band_softness": 0.25,
+  "base_color": [
+    0.6,
+    0.52,
+    0.45
   ]
 }
