@@ -1,7 +1,0 @@
-{
-  "type": "material",
-  "version": 2,
-  "base_color": [0.85, 0.85, 0.8],
-  "roughness": 0.8,
-  "rim": false
-}

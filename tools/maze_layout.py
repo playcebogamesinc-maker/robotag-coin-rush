@@ -153,13 +153,11 @@ spots = [(f"Home {h.capitalize()}", h, (cc % W, rr % H)) for h, (cc, rr) in HOME
 spots += [(f"Spawn {i + 1}", "spawn", p) for i, p in enumerate(SPAWNS)]
 for i, (name, role, (c, r)) in enumerate(spots):
     assert (c, r) in nodes, f"{name}: no node at column {c}, row {r}"
-    pad = 1.2 if role == "spawn" else 2.0
     x, _, z = world(c, r)
     scene_cmds.append({"cmd": "entity.create", "entity": {
         "id": f"e_3a2e{0x2000 + i:04x}", "name": name, "components": {
-            # A flat pad under the node, so homes and spawns show in renders and the editor.
-            "Transform": {"position": [x, 0.02, z], "scale": [pad, 0.02, pad]},
-            "Mesh": {"mesh": "cube", "material": f"materials/{'spawn' if role == 'spawn' else 'home_' + role}.material.json"},
+            # Data only (no mesh): the run reads where homes and spawns are.
+            "Transform": {"position": [x, 0.02, z]},
             "MazeSpot": {"role": role, "node": nodes[(c, r)]["id"]}}}})
 # Floor, camera (top-down on the whole maze) and the player's start.
 ids = {e["name"]: e["id"] for e in scene["entities"]}
