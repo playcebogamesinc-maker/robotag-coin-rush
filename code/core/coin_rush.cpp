@@ -109,7 +109,7 @@ public:
             }
         }
         if (maze_) {
-            board_.emplace(coin_spots(maze_->graph));
+            board_.emplace(coin_spots(maze_->graph, maze_->ride_height));
             for (size_t i = 0; i < board_->spots().size(); ++i) {
                 scene::Entity& coin = scene.add_entity("Coin " + std::to_string(i + 1));
                 coin.transform.position = board_->spots()[i].position;
@@ -269,7 +269,7 @@ private:
     void new_run(scene::Scene& scene) {
         if (!board_) return;
         open_map(scene, false);
-        board_.emplace(coin_spots(maze_->graph));
+        board_.emplace(coin_spots(maze_->graph, maze_->ride_height));
         for (const std::string& id : coins_) {
             if (scene::Entity* coin = scene.find(id)) show_coin(*coin, board_->level_info());
         }

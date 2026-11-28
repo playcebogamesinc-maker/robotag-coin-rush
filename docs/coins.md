@@ -33,7 +33,7 @@ A perfect run is worth 31 x 138 = 4,278 points.
 - `code/core/coins.hpp/.cpp`: `coin_spots()` (where coins go) and `CoinBoard` (pickup, levels,
   score). No scene or graphics, so tests drive it directly.
 - `code/core/coin_rush.cpp`: the run puts one `Coin N` entity per spot into the running scene
-  (a flattened built-in sphere, 0.6 m across, 0.6 m above the rail, turning with `Spin`),
+  (a flattened built-in sphere, 0.6 m across, 0.5 m above the track (`rails::ride_height` + `kCoinHeight`), turning with `Spin`),
   hides a coin's mesh when it's taken and shows them all again in the next level's material.
   Coins exist only while playing; they aren't in the scene file.
 - Tuning: `kCoinSpacing`, `kCoinHeight`, `kPickupRadius` and the `kLevels` table in

@@ -48,7 +48,9 @@
         "RailNetwork": {
           "rails": "scenes/main.rails.json",
           "material": "materials/rail.material.json",
-          "radius": 0.08
+          "radius": 0.08,
+          "profile": "grooved",
+          "groove_material": "materials/rail_groove.material.json"
         }
       }
     },
@@ -57,7 +59,7 @@
       "name": "Player",
       "components": {
         "Transform": {
-          "position": [-9.0, 0.38, 9.0]
+          "position": [-9.0, 0.12, 9.0]
         },
         "Robot": {
           "start_node": "n_3a2e000a",

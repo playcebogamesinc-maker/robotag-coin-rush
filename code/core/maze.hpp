@@ -20,6 +20,7 @@ inline constexpr std::array<const char*, 4> kHunters = {"blinky", "pinky", "inky
 
 struct Maze {
     rails::RailGraph graph;
+    float ride_height = 0.0f;          // Wheel bottom above the rails (rails::ride_height).
     std::vector<std::string> spawns;   // Player spawn nodes, in scene order.
     std::array<std::string, 4> homes;  // Home node per hunter (kHunters order), "" = missing.
 };

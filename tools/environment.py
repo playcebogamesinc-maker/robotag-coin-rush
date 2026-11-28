@@ -66,7 +66,19 @@ MATERIALS = {
 RESTYLE = {
     "wall":  {**SAND, "base_color": [0.6, 0.52, 0.45]},
     "floor": {"base_color": [0.06, 0.04, 0.03], "roughness": 0.9, "rim": False},
+    # The grooved track (engine RailNetwork profile "grooved"): worn dark iron with a
+    # highlight on the lips, the groove darker.
+    "rail":        {"base_color": [0.2, 0.16, 0.13], "roughness": 0.35, "specular": True,
+                    "rim": False, "shadow_tint": [0.45, 0.35, 0.3]},
+    "rail_groove": {"base_color": [0.1, 0.08, 0.065], "roughness": 0.6, "rim": False},
 }
+# The railway's look: a wheel track like the reference image. The rails sit RAIL_Y above the
+# floor (tools/maze_layout.py), so the sides go down that far (`depth`).
+RAIL_Y = 0.12
+RAILWAY = {"profile": "grooved", "material": "materials/rail.material.json",
+           "groove_material": "materials/rail_groove.material.json", "depth": RAIL_Y,
+           "groove_width": 0.26, "lip_width": 0.07, "lip_height": 0.06,
+           "foot_width": 0.06, "foot_height": 0.06}
 # Torch / fire-bowl light (baked PointLights at every flame).
 TORCH_LIGHT = {"color": [1.0, 0.52, 0.2], "intensity": 1.6, "range": 7.5, "radius": 0.2}
 BOWL_LIGHT = {"color": [1.0, 0.48, 0.16], "intensity": 1.0, "range": 7.0, "radius": 0.3}
@@ -523,6 +535,9 @@ if "DirectionalLight" in light["components"]:  # No sun underground (engine: no 
     cmds.append({"cmd": "component.remove", "id": light["id"], "component": "DirectionalLight"})
 if light["name"] != "Ambient Light":
     cmds.append({"cmd": "entity.rename", "id": light["id"], "name": "Ambient Light"})
+railway = next(e for e in scene["entities"] if "RailNetwork" in e["components"])
+cmds.append({"cmd": "component.set", "id": railway["id"], "component": "RailNetwork",
+             "value": RAILWAY})
 if "Static" in scene_floor["components"]:  # The ground under the walls needs no lightmap.
     cmds.append({"cmd": "component.remove", "id": ids["Floor"], "component": "Static"})
 json.dump(cmds, open(os.path.join(out_dir, "scene.json"), "w"), indent=1)

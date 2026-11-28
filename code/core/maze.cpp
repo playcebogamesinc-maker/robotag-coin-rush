@@ -7,6 +7,7 @@
 
 #include "rails/core/rail_bake.hpp"
 #include "rails/core/rail_junctions.hpp"
+#include "rails/core/rail_style.hpp"
 #include "schema/coin_rush.gen.hpp"
 
 namespace coin_rush {
@@ -70,6 +71,7 @@ std::optional<Maze> load_maze(const scene::Scene& scene, const std::string& cont
 
     Maze maze;
     maze.graph = std::move(*graph);
+    maze.ride_height = rails::ride_height(*network);
     for (const scene::Entity& e : scene.entities) {
         const MazeSpot* spot = find_component<MazeSpot>(e);
         if (!spot) continue;
