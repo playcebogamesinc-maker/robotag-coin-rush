@@ -8,7 +8,7 @@
 
 namespace coin_rush {
 
-std::vector<CoinSpot> coin_spots(const rails::RailGraph& graph, float spacing) {
+std::vector<CoinSpot> coin_spots(const rails::RailGraph& graph, float ride_height, float spacing) {
     std::vector<CoinSpot> spots;
     rails::BakeCache bakes;
     bakes.update(graph);
@@ -20,7 +20,7 @@ std::vector<CoinSpot> coin_spots(const rails::RailGraph& graph, float spacing) {
         for (int i = 0; i < count; ++i) {
             const float s = (static_cast<float>(i) + 0.5f) * gap;
             const rails::RailFrame f = bake->at(s);
-            spots.push_back({edge.id, s, f.position + f.up * kCoinHeight});
+            spots.push_back({edge.id, s, f.position + f.up * (ride_height + kCoinHeight)});
         }
     }
     return spots;

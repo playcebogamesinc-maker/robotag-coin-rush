@@ -19,8 +19,8 @@ namespace coin_rush {
 // Metres between coins along a rail (each rail gets a whole number of coins, as close to
 // this as fits, the end ones half a gap from its nodes).
 inline constexpr float kCoinSpacing = 3.0f;
-// Coins float this high above the rail.
-inline constexpr float kCoinHeight = 0.6f;
+// Coins float this high above the track (where the wheel rides: rails::ride_height).
+inline constexpr float kCoinHeight = 0.5f;
 // A coin is picked up when the player robot is this close to it (on the ground plane).
 inline constexpr float kPickupRadius = 1.0f;
 
@@ -47,7 +47,8 @@ struct CoinSpot {
 };
 
 // Every coin of a maze: along each rail (not the corner rails inside junctions), in rail order.
-std::vector<CoinSpot> coin_spots(const rails::RailGraph& graph, float spacing = kCoinSpacing);
+std::vector<CoinSpot> coin_spots(const rails::RailGraph& graph, float ride_height = 0.0f,
+                                 float spacing = kCoinSpacing);
 
 // The coins of one run: which are still out, the level and the score.
 class CoinBoard {

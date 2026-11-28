@@ -33,7 +33,7 @@ LAYOUT = """
 +-----+-----+-----+
 """
 CELL = 3.0          # Metres per character.
-RAIL_Y = 0.3        # Rail height (ground is y = 0).
+RAIL_Y = 0.12       # Rail centre line = groove floor (ground is y = 0; tools/environment.py).
 WALL_GAP = 2.0      # Walls stop this far from a rail's centre line (junction curves cut 1.2 m in).
 WALL_HEIGHT = 5.6   # Tunnel walls up to the ceiling (tools/environment.py builds the rest).
 BORDER = 1.0        # Thickness of the outer wall.
@@ -174,7 +174,7 @@ sx, _, sz = world(*START)
 start = nodes[START]
 scene_cmds += [
     {"cmd": "component.set", "id": ids["Player"], "component": "Transform",
-     "value": {"position": [sx, 0.38, sz], "rotation": [0.0, 0.0, 0.0]}},
+     "value": {"position": [sx, RAIL_Y, sz], "rotation": [0.0, 0.0, 0.0]}},
     {"cmd": "component.set", "id": ids["Player"], "component": "Robot",
      "value": {"start_node": start["id"], "start_port": start["dirs"].index("S")}},
 ]

@@ -14,6 +14,12 @@ scenery only: rails, coins, robots and UI are untouched. Uses the engine's M19 /
 - **Every corridor:** pillar pairs every ~3 m (base, shaft, capital) with a ceiling beam, heavy
   lintels where it opens into a junction, stone courses along the walls (skirting, two bands,
   cornice), a floor of 1 m slabs (the rails sit on the slab seams).
+- **Rails:** the engine's grooved wheel track (`RailNetwork.profile` "grooved", engine request
+  #11, like Vlad's reference image): two dark iron lips, a darker groove the wheel runs in, a
+  low foot; at T, X and corner junctions the grooves cut through the other rails' lips. The
+  rails sit 0.12 m above the floor (`RAIL_Y` in `tools/maze_layout.py`, `depth` 0.12). Set by
+  `tools/environment.py` (`RAILWAY`, materials `rail` / `rail_groove` in `RESTYLE`); they are
+  probe-lit, not Static, so the lightmap is unchanged.
 - **Stone:** three tileable textures with normal maps in `content/textures/env/` (made by
   `tools/textures.py`): `sandstone` (ashlar blocks in 0.5 m courses: walls, pillars, trim,
   props, ceiling; triplanar), `slabs` (floor; projected from above, seams on whole metres) and
