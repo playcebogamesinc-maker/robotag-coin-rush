@@ -41,7 +41,7 @@ current layout meets them and how to change it.
 
 Places are `MazeSpot` components (`schemas/coin_rush.schema`) on entities named `Home Blinky`
 ... `Spawn 4`: a role (`blinky`, `pinky`, `inky`, `clyde`, `spawn`) and the rail node they're
-on. Their flat pads show them in renders and the editor. Game code reads the maze with
+on. They are data only (no mesh: nothing shows in the game). Game code reads the maze with
 `load_maze()` / `check_maze()` (`code/core/maze.hpp`); `coin_rush_test` fails when a rule
 breaks, and a run prints any broken rule at start.
 

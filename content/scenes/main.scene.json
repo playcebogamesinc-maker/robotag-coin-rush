@@ -238,9 +238,6 @@
           "position": [-27.0, 0.02, -27.0],
           "scale": [2.0, 0.02, 2.0]
         },
-        "Mesh": {
-          "material": "materials/home_pinky.material.json"
-        },
         "MazeSpot": {
           "role": "pinky",
           "node": "n_3a2e0001"
@@ -254,9 +251,6 @@
         "Transform": {
           "position": [27.0, 0.02, -27.0],
           "scale": [2.0, 0.02, 2.0]
-        },
-        "Mesh": {
-          "material": "materials/home_blinky.material.json"
         },
         "MazeSpot": {
           "role": "blinky",
@@ -272,9 +266,6 @@
           "position": [-27.0, 0.02, 27.0],
           "scale": [2.0, 0.02, 2.0]
         },
-        "Mesh": {
-          "material": "materials/home_clyde.material.json"
-        },
         "MazeSpot": {
           "role": "clyde",
           "node": "n_3a2e000d"
@@ -288,9 +279,6 @@
         "Transform": {
           "position": [27.0, 0.02, 27.0],
           "scale": [2.0, 0.02, 2.0]
-        },
-        "Mesh": {
-          "material": "materials/home_inky.material.json"
         },
         "MazeSpot": {
           "role": "inky",
@@ -306,9 +294,6 @@
           "position": [-9.0, 0.02, -3.0],
           "scale": [1.2, 0.02, 1.2]
         },
-        "Mesh": {
-          "material": "materials/spawn.material.json"
-        },
         "MazeSpot": {
           "node": "n_3a2e0006"
         }
@@ -321,9 +306,6 @@
         "Transform": {
           "position": [9.0, 0.02, -3.0],
           "scale": [1.2, 0.02, 1.2]
-        },
-        "Mesh": {
-          "material": "materials/spawn.material.json"
         },
         "MazeSpot": {
           "node": "n_3a2e0007"
@@ -338,9 +320,6 @@
           "position": [-9.0, 0.02, 9.0],
           "scale": [1.2, 0.02, 1.2]
         },
-        "Mesh": {
-          "material": "materials/spawn.material.json"
-        },
         "MazeSpot": {
           "node": "n_3a2e000a"
         }
@@ -353,9 +332,6 @@
         "Transform": {
           "position": [9.0, 0.02, 9.0],
           "scale": [1.2, 0.02, 1.2]
-        },
-        "Mesh": {
-          "material": "materials/spawn.material.json"
         },
         "MazeSpot": {
           "node": "n_3a2e000b"
